@@ -1,0 +1,7 @@
+{
+  "name": "ReactOP",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
