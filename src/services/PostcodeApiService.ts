@@ -1,9 +1,5 @@
 import axios from "axios";
-
-interface Postcode {
-  status: string;
-  result: any;
-}
+import { Coordinate } from "../interfaces/PoliceApi";
 
 export class PostcodeApiService {
   private url: string = "https://api.postcodes.io/postcodes";
@@ -12,6 +8,17 @@ export class PostcodeApiService {
     const response = await axios.get(`${this.url}/${postcode}`);
     if (response) {
       return response.data.result
+    }
+    return null;
+  }
+  
+  public async getPostcodeCoordinates(postcode: string): Promise<Coordinate | null> {
+    const pc = await this.getPostcode(postcode);
+    if (pc) {
+      return {
+        latitude: pc.latitude,
+        longitude: pc.longitude,
+      }
     }
     return null;
   }

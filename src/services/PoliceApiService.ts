@@ -43,6 +43,26 @@ export class PoliceApiService {
     return null;
   }
 
+  public async getNeighbourhoodBoundaryByCoordinates(
+    latitude: string,
+    longitude: string
+  ): Promise<Coordinate[] | null> {
+    const NHLocated = await this.locateNeighbourhood(latitude, longitude);
+
+    if (NHLocated) {
+      const { force, neighbourhood } = NHLocated;
+
+      const boyndary = await axios.get(
+        `${this.url}/${force}/${neighbourhood}/boundary`
+      );
+
+      if (boyndary) {
+        return boyndary.data;
+      }
+    }
+    return null;
+  }
+
   public async locateNeighbourhood(
     latitude: string,
     longitude: string
