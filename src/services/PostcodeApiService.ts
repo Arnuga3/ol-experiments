@@ -7,20 +7,34 @@ export class PostcodeApiService {
   public async getPostcode(postcode: string): Promise<any | null> {
     const response = await axios.get(`${this.url}/${postcode}`);
     if (response) {
-      return response.data.result
+      return response.data.result;
     }
     return null;
   }
-  
-  public async getPostcodeCoordinates(postcode: string): Promise<Coordinate | null> {
-    const pc = await this.getPostcode(postcode);
-    if (pc) {
-      return {
-        latitude: pc.latitude,
-        longitude: pc.longitude,
-      }
+
+  public async getPostcodeSuggetions(postcode: string): Promise<any | null> {
+    const response = await axios.get(`${this.url}/${postcode}/autocomplete`);
+    if (response) {
+      return response.data.result;
     }
     return null;
+  }
+
+  public async getPostcodeCoordinates(
+    postcodeString: string
+  ): Promise<Coordinate | null> {
+    try {
+      const postcode = await this.getPostcode(postcodeString);
+      if (postcode) {
+        return {
+          latitude: postcode.latitude,
+          longitude: postcode.longitude,
+        };
+      }
+      return null;
+    } catch (e) {
+      throw new Error("Postcode not found");
+    }
   }
 }
 

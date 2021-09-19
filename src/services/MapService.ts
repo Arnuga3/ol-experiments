@@ -3,15 +3,16 @@ import VectorSource from "ol/source/Vector";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 import { Vector } from "ol/layer";
-import { Feature } from "ol";
+import { Feature, Map } from "ol";
+
+import { extend } from "ol/array";
+import { isEmpty } from "ol/extent";
 
 import { Coordinate } from "../interfaces/PoliceApi";
-import { extend } from "ol/array";
-import { createEmpty } from "ol/extent";
 
 const style = new Style({
   stroke: new Stroke({
-    color: [255, 0, 0, 1],
+    color: [61, 194, 255, 1],
     width: 6,
     lineCap: "round",
   }),
@@ -20,19 +21,14 @@ const style = new Style({
 export class MapService {
   public getBoundaryLayer(points: Coordinate[]) {
     const pointsTransformed = points.map((point: Coordinate) => [
-        +point.longitude,
-        +point.latitude,
+      +point.longitude,
+      +point.latitude,
     ]);
     const polygonFeature = new Feature(
-        new Polygon([pointsTransformed]).transform("EPSG:4326", "EPSG:3857")
+      new Polygon([pointsTransformed]).transform("EPSG:4326", "EPSG:3857")
     );
-    const source = new VectorSource({
-        features: [polygonFeature],
-    });
-    return new Vector({
-        source,
-        style,
-    });
+    const source = new VectorSource({ features: [polygonFeature] });
+    return new Vector({ source, style });
   }
 
   /**
@@ -41,19 +37,33 @@ export class MapService {
    * @return extent
    */
   public getLayerExtent(layer: any) {
-    if (!layer) {
-        return;
-    }
-    // const extent = createEmpty();
-    let extent: any = [];
-      layer.getSource().getFeatures().forEach((feature: any) => {
+    let extent: any = null;
+
+    layer
+      .getSource()
+      .getFeatures()
+      .forEach((feature: any) => {
         const geometry = feature.getGeometry();
-        if (feature && geometry) {
-          extent = [ ...extent,  geometry.getExtent()];
+        if (geometry) {
+          extent = extent
+            ? extend(extent, geometry.getExtent())
+            : geometry.getExtent();
         }
       });
-      return extent;
+    return extent;
   }
+
+  drawPolygon = async (map: Map, boundary: Coordinate[]) => {
+    if (boundary) {
+      const layer = this.getBoundaryLayer(boundary);
+      const extent = this.getLayerExtent(layer);
+
+      if (layer && extent && !isEmpty(extent)) {
+        map.addLayer(layer);
+        map.getView().fit(extent);
+      }
+    }
+  };
 }
 
 export const mapService = new MapService();

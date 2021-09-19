@@ -5,8 +5,8 @@ import {
   Neighbourhood,
   NeighbourhoodSpecific,
   Coordinate,
-  NeighbourhoodLocated,
 } from "../interfaces/PoliceApi";
+import { postcodeApiService } from "./PostcodeApiService";
 
 export class PoliceApiService {
   private url: string = "https://data.police.uk/api";
@@ -43,24 +43,28 @@ export class PoliceApiService {
     return null;
   }
 
-  public async getNeighbourhoodBoundaryByCoordinates(
-    latitude: string,
-    longitude: string
-  ): Promise<Coordinate[] | null> {
-    const NHLocated = await this.locateNeighbourhood(latitude, longitude);
+  public async getNeighbourhoodBoundaryByCoordinates({
+    latitude,
+    longitude,
+  }: Coordinate): Promise<Coordinate[] | null> {
+    try {
+      const NHLocated = await this.locateNeighbourhood(latitude, longitude);
 
-    if (NHLocated) {
-      const { force, neighbourhood } = NHLocated;
+      if (NHLocated) {
+        const { force, neighbourhood } = NHLocated;
 
-      const boyndary = await axios.get(
-        `${this.url}/${force}/${neighbourhood}/boundary`
-      );
+        const boyndary = await axios.get(
+          `${this.url}/${force}/${neighbourhood}/boundary`
+        );
 
-      if (boyndary) {
-        return boyndary.data;
+        if (boyndary) {
+          return boyndary.data;
+        }
       }
+      return null;
+    } catch (e) {
+      throw new Error("Police neighbourhood not found");
     }
-    return null;
   }
 
   public async locateNeighbourhood(
@@ -72,6 +76,16 @@ export class PoliceApiService {
     );
     if (response) {
       return response.data;
+    }
+    return null;
+  }
+
+  public async getNHBoundary(postcode: string): Promise<Coordinate[] | null> {
+    const coordinates = await postcodeApiService.getPostcodeCoordinates(
+      postcode.replace(/\s/g, "")
+    );
+    if (coordinates) {
+      return await this.getNeighbourhoodBoundaryByCoordinates(coordinates);
     }
     return null;
   }

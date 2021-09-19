@@ -6,74 +6,65 @@ import { Stamen } from "ol/source";
 import { Tile } from "ol/layer";
 import { transform } from "ol/proj";
 
-import { mapService } from "../services/MapService";
-import { postcodeApiService } from "../services/PostcodeApiService";
 import { policeApiService } from "../services/PoliceApiService";
+import { mapService } from "../services/MapService";
+import styled from "styled-components";
+import { IonSpinner, useIonToast } from "@ionic/react";
 
 interface Props {
-  search: string | null;
+  postcode: string | null;
 }
 
-const IndexMap: React.FC<Props> = ({ search }) => {
-  const [map, setMap] = useState<any>();
+const INIT_POINT = [-1.140593, 52.740123];
 
+export const IndexMap: React.FC<Props> = ({ postcode }) => {
   const mapRef = useRef<any>(null);
+  const [map, setMap] = useState<Map | null>(null);
+
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [present] = useIonToast();
 
   useEffect(() => {
-    if (search) {
-      drawBoundaryLayer(search);
+    if (postcode) {
+      setLoading(true);
+      displayBoundary(postcode);
     }
-  }, [search]);
+  }, [postcode]);
 
-  const drawBoundaryLayer = async (postcode: string) => {
-
-    const coordinates = await postcodeApiService.getPostcodeCoordinates(
-      postcode.replace(/\s/g, "")
-    );
-
-    if (coordinates) {
-      const { latitude, longitude } = coordinates;
-
-      const neighbourhoodBoundary =
-        await policeApiService.getNeighbourhoodBoundaryByCoordinates(
-          latitude,
-          longitude
-        );
-
-      if (neighbourhoodBoundary) {
-        const layer = mapService.getBoundaryLayer(neighbourhoodBoundary);
-        const extent = await mapService.getLayerExtent(layer);
-
-        map.addLayer(layer);
-        map.getView().fit(extent);
+  const displayBoundary = async (postcodeString: string) => {
+    try {
+      const boundary = await policeApiService.getNHBoundary(postcodeString);
+      if (map && boundary) {
+        mapService.drawPolygon(map, boundary);
+        setLoading(false);
       }
+    } catch (error: any) {
+      setLoading(false);
+      present({ message: error, duration: 2000, color: "danger" });
     }
   };
 
   useEffect(() => {
-    const initialMap = new Map({
+    const initMap = new Map({
       target: mapRef.current,
-      layers: [
-        new Tile({
-          source: new Stamen({
-            layer: "toner",
-          }),
-        }),
-      ],
+      layers: [new Tile({ source: new Stamen({ layer: "toner" }) })],
       view: new View({
-        center: transform([-1.140593, 52.740123], "EPSG:4326", "EPSG:3857"),
+        center: transform(INIT_POINT, "EPSG:4326", "EPSG:3857"),
         zoom: 8,
       }),
     });
-
-    setMap(initialMap);
-
-    setTimeout(() => {
-      initialMap.updateSize();
-    }, 100);
+    setMap(initMap);
+    setTimeout(() => initMap.updateSize(), 100);
   }, []);
 
-  return <div style={{ height: "100%" }} ref={mapRef} />;
+  return (
+    <MapContainer ref={mapRef}>
+      {loading && <IonSpinner name="crescent" />}
+    </MapContainer>
+  );
 };
 
-export default IndexMap;
+const MapContainer = styled.div`
+  height: 100%;
+`;
