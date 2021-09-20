@@ -13,7 +13,7 @@ import {
 import { useState } from "react";
 import styled from "styled-components";
 
-import { postcodeApiService } from "../services/PostcodeApiService";
+import { postcodeApiService } from "../../../services/PostcodeApiService";
 
 interface Props {
   onSelect: (postcode: string | null) => void;
@@ -21,7 +21,7 @@ interface Props {
 
 const NOT_FOUND = "Not Found";
 
-const Search: React.FC<Props> = ({ onSelect }) => {
+export const Search: React.FC<Props> = ({ onSelect }) => {
   const [state, setState] = useState<any>({
     searchInput: null,
     needOptions: true, // When a postcode is selected from a list, there is no need to retrieve suggestions
@@ -102,8 +102,6 @@ const Search: React.FC<Props> = ({ onSelect }) => {
   );
 };
 
-export default Search;
-
 const Searchbar = styled(IonSearchbar)`
   padding: 0;
   --border-radius: 25px;
@@ -137,6 +135,7 @@ const List = styled(IonList)`
   border-radius: 25px;
   text-align: center;
   width: 100%;
+  z-index: 99;
 `;
 
 const ListItem = styled(IonItem)`

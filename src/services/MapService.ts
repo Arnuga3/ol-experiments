@@ -13,7 +13,7 @@ import { Coordinate } from "../interfaces/PoliceApi";
 const style = new Style({
   stroke: new Stroke({
     color: [61, 194, 255, 1],
-    width: 6,
+    width: 4,
     lineCap: "round",
   }),
 });
