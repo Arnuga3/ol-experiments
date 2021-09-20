@@ -1,18 +1,30 @@
-import { IonIcon, IonText } from "@ionic/react";
-import { closeCircleOutline } from "ionicons/icons";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
+
+import { IonButton, IonButtons, IonIcon, IonText } from "@ionic/react";
+import { closeCircleOutline, informationCircleSharp } from "ionicons/icons";
 import { Spinner } from "../../../components/Spinner";
+
 import { policeApiService } from "../../../services/PoliceApiService";
 
 interface Props {
   force: string;
 }
 
+interface PopupState {
+  data: any;
+  loading: boolean;
+  open:  boolean;
+}
+
 export const Popup: React.FC<Props> = ({ force }) => {
-  const [forceInfo, setForceInfo] = useState<any>(null);
-  const [loading, setLoading] = useState<any>(null);
-  const [open, setOpen] = useState<any>(true);
+  const [state, setState] = useState<PopupState>({
+    data: null,
+    loading: false,
+    open: false,
+  });
+
+  const { data, loading, open } = state;
 
   useEffect(() => {
     if (force) {
@@ -21,45 +33,58 @@ export const Popup: React.FC<Props> = ({ force }) => {
   }, [force]);
 
   const retrieveForce = async (force: string) => {
-    setLoading(true);
-    const data = await policeApiService.getForce(force);
-    setForceInfo(data);
-    setOpen(true);
-    setLoading(false);
+    setState({ ...state, loading: true, open: true });
+    const forceData = await policeApiService.getForce(force);
+    setState({
+      ...state,
+      data: forceData,
+      loading: false,
+    });
   };
 
   return open ? (
     <Wrapper>
       <Content>
         <CloseIcon>
-          <IonIcon icon={closeCircleOutline} onClick={() => setOpen(false)}/>
+          <IonIcon
+            icon={closeCircleOutline}
+            onClick={() => setState({ ...state, open: false })}
+          />
         </CloseIcon>
         {loading && <Spinner name="crescent" color="secondary" />}
-        {forceInfo && (
+        {data && (
           <>
-            {forceInfo.name && (
+            {data.name && (
               <IonText>
-                <h4>{forceInfo.name}</h4>
+                <h4>{data.name}</h4>
               </IonText>
             )}
             <Cards>
-              {forceInfo.engagement_methods &&
-                forceInfo.engagement_methods.map(
-                  (method: any, index: number) => (
-                    <CardButton href={method.url} key={index}>
-                      <IonIcon color="secondary" icon={method.icon} />
-                      <IonText>
-                        <small>{method.name}</small>
-                      </IonText>
-                    </CardButton>
-                  )
-                )}
+              {data.engagement_methods &&
+                data.engagement_methods.map((method: any, index: number) => (
+                  <CardButton href={method.url} key={index}>
+                    <IonIcon color="secondary" icon={method.icon} />
+                    <IonText>
+                      <small>{method.name}</small>
+                    </IonText>
+                  </CardButton>
+                ))}
             </Cards>
           </>
         )}
       </Content>
     </Wrapper>
-  ) : null;
+  ) : (
+    <ForceInfoButton>
+      <IonButton onClick={() => setState({ ...state, open: true })}>
+        <IonIcon
+          slot="icon-only"
+          color="secondary"
+          icon={informationCircleSharp}
+        />
+      </IonButton>
+    </ForceInfoButton>
+  );
 };
 
 const Wrapper = styled.div`
@@ -105,5 +130,18 @@ const CardButton = styled.a`
 const CloseIcon = styled.div`
   position: absolute;
   right: 20px;
-  top: 18px
+  top: 18px;
+`;
+
+const ForceInfoButton = styled(IonButtons)`
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  bottom: 55px;
+  padding: 6px;
+  max-width: 500px;
+  display: flex;
+  justify-content: flex-end;
 `;
