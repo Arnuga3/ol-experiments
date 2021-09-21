@@ -16,12 +16,12 @@ import { defaults } from "ol/control";
 interface Props {
   postcode: string | null;
   onLoading: (loading: boolean) => void;
-  onForceFound: (force: string) => void;
+  onData: (data: any) => void;
 }
 
 const INIT_POINT = [-1.140593, 52.740123];
 
-export const Map: React.FC<Props> = ({ postcode, onLoading, onForceFound }) => {
+export const Map: React.FC<Props> = ({ postcode, onLoading, onData }) => {
   const mapRef = useRef<any>(null);
   const [map, setMap] = useState<OLMap | null>(null);
 
@@ -36,11 +36,11 @@ export const Map: React.FC<Props> = ({ postcode, onLoading, onForceFound }) => {
 
   const displayBoundary = async (postcodeString: string) => {
     try {
-      const data = await policeApiService.getNHBoundaryByPostcode(postcodeString);
+      const data = await policeApiService.getCrimesWithinOneMileByPostcode(postcodeString);
       if (map && data) {
-        mapService.drawPolygon(map, data.boundary);
+        mapService.drawPoints(map, data);
         onLoading(false);
-        onForceFound(data.force);
+        onData(data);
       }
     } catch (error: any) {
       onLoading(false);

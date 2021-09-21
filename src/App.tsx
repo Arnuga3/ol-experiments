@@ -1,4 +1,4 @@
-import { Route } from "react-router-dom";
+import { Redirect, Route } from "react-router-dom";
 import {
   IonApp,
   IonIcon,
@@ -28,7 +28,8 @@ import "@ionic/react/css/display.css";
 /* Theme variables */
 import "./theme/variables.css";
 import PoliceForce from "./pages/police-forces/PoliceForce";
-import { shieldOutline } from "ionicons/icons";
+import Crimes from "./pages/crimes/Crimes";
+import { shieldOutline, skullOutline } from "ionicons/icons";
 
 const App: React.FC = () => (
   <IonApp>
@@ -39,11 +40,20 @@ const App: React.FC = () => (
           <Route exact path="/:tab(police-force)">
             <PoliceForce />
           </Route>
+          <Route exact path="/:tab(crimes)">
+            <Crimes />
+          </Route>
+          <Route exact path="/">
+              <Redirect from="/" to="/crimes" />
+            </Route>
         </IonRouterOutlet>
 
         <IonTabBar slot="bottom">
           <IonTabButton tab="police-force" href="/police-force">
             <IonIcon icon={shieldOutline}/>
+          </IonTabButton>
+          <IonTabButton tab="crimes" href="/crimes">
+            <IonIcon icon={skullOutline}/>
           </IonTabButton>
         </IonTabBar>
         

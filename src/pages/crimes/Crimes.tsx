@@ -4,14 +4,13 @@ import styled from "styled-components";
 import { IonContent, IonPage } from "@ionic/react";
 
 import { Spinner } from "../../components/Spinner";
-import { Map } from "./components/Map";
-import { Popup } from "./components/Popup";
 import { PostcodeSearch } from "../../components/PostcodeSearch";
+import { Map } from "./components/Map";
 
 const Index: React.FC = () => {
   const [postcode, setPostcode] = useState<string | null>(null);
   const [mapBusy, setMapBusy] = useState<boolean>(false);
-  const [force, setForce] = useState<string | null>(null);
+  const [crimes, setCrimes] = useState<any>(null);
 
   return (
     <IonPage>
@@ -20,13 +19,12 @@ const Index: React.FC = () => {
         <Map
           postcode={postcode}
           onLoading={(loading: boolean) => setMapBusy(loading)}
-          onForceFound={(force) => setForce(force)}
+          onData={(data) => setCrimes(data)}
         />
         <PostcodeSearch
-          placeholder="Search Police Force by postcode"
+          placeholder="Search Crimes by postcode"
           onSelect={(postcode: string | null) => setPostcode(postcode)}
         />
-        {force && !mapBusy && <Popup force={force} />}
       </Content>
     </IonPage>
   );

@@ -1,10 +1,10 @@
 import {
-  globeOutline,
   logoTwitter,
   callOutline,
   linkOutline,
   logoFacebook,
   logoYoutube,
+  earthOutline,
 } from "ionicons/icons";
 import _ from "lodash";
 
@@ -13,7 +13,7 @@ type ContactType = "website" | "twitter" | "telephone";
 function getEngagementMethodIcon(type: ContactType) {
   switch (type.toLowerCase()) {
     case "website":
-      return globeOutline;
+      return earthOutline;
     case "twitter":
       return logoTwitter;
     case "facebook":

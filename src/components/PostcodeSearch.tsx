@@ -13,15 +13,16 @@ import {
 import { useState } from "react";
 import styled from "styled-components";
 
-import { postcodeApiService } from "../../../services/PostcodeApiService";
+import { postcodeApiService } from "../services/PostcodeApiService";
 
 interface Props {
+  placeholder: string;
   onSelect: (postcode: string | null) => void;
 }
 
 const NOT_FOUND = "Not Found";
 
-export const Search: React.FC<Props> = ({ onSelect }) => {
+export const PostcodeSearch: React.FC<Props> = ({ placeholder, onSelect }) => {
   const [state, setState] = useState<any>({
     searchInput: null,
     needOptions: true, // When a postcode is selected from a list, there is no need to retrieve suggestions
@@ -77,7 +78,7 @@ export const Search: React.FC<Props> = ({ onSelect }) => {
         clearIcon={closeCircleOutline}
         onIonChange={search}
         onIonClear={clear}
-        placeholder={"Search by postcode"}
+        placeholder={placeholder}
       />
       {postcodeOptions.length > 0 && (
         <List>
