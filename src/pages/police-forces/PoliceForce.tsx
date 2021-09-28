@@ -1,32 +1,32 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
 
 import { IonContent, IonPage } from "@ionic/react";
 
 import { Spinner } from "../../components/Spinner";
 import { Map } from "./components/Map";
-import { Popup } from "./components/Popup";
+import { InformationPopup } from "./components/InformationPopup";
 import { PostcodeSearch } from "../../components/PostcodeSearch";
+import { getPoliceForceNameAndBoundary } from "../../redux/actions/mapActions";
 
 const Index: React.FC = () => {
-  const [postcode, setPostcode] = useState<string | null>(null);
+  const dispatch = useDispatch();
+  
   const [mapBusy, setMapBusy] = useState<boolean>(false);
-  const [force, setForce] = useState<string | null>(null);
 
   return (
     <IonPage>
       <Content fullscreen>
         {mapBusy && <Spinner name="crescent" color="secondary" />}
         <Map
-          postcode={postcode}
           onLoading={(loading: boolean) => setMapBusy(loading)}
-          onForceFound={(force) => setForce(force)}
         />
         <PostcodeSearch
           placeholder="Search Police Force by postcode"
-          onSelect={(postcode: string | null) => setPostcode(postcode)}
+          onSelect={(postcode: string) => dispatch(getPoliceForceNameAndBoundary(postcode))}
         />
-        {force && !mapBusy && <Popup force={force} />}
+        <InformationPopup />
       </Content>
     </IonPage>
   );

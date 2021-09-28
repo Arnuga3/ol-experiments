@@ -89,7 +89,7 @@ export class PoliceApiService {
 
         if (boundary) {
           return {
-            force,
+            policeForceName: force,
             boundary: boundary.data,
           };
         }

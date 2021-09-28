@@ -1,18 +1,18 @@
-import Polygon from "ol/geom/Polygon";
-import Point from "ol/geom/Point";
-import VectorSource from "ol/source/Vector";
-import Stroke from "ol/style/Stroke";
-import { Style, Circle, Fill } from "ol/style";
-import { Vector } from "ol/layer";
-import { Feature, Map } from "ol";
-
+import { Map, View, Feature } from "ol";
+import { Point, Polygon } from "ol/geom";
+import { Style, Circle, Fill, Stroke } from "ol/style";
+import { Heatmap, Vector, Tile } from "ol/layer";
+import { Stamen } from "ol/source";
+import { defaults } from "ol/control";
+import { fromLonLat, transform } from "ol/proj";
 import { isEmpty } from "ol/extent";
-import { fromLonLat } from "ol/proj";
+
+import VectorSource from "ol/source/Vector";
+import "ol/ol.css";
 
 import { Coordinate } from "../interfaces/PoliceApi";
 
 const color = [61, 194, 255, 1];
-const color2 = [61, 194, 255, 0.6];
 
 const style = new Style({
   stroke: new Stroke({
@@ -22,8 +22,25 @@ const style = new Style({
   }),
 });
 
+const INIT_POINT = [-1.140593, 52.740123];
+const POLYGON_LAYER = "POLYGON_LAYER";
+
 export class MapService {
-  public getBoundaryLayer(points: Coordinate[]) {
+  public initMap(target: any) {
+    return new Map({
+      controls: defaults({
+        attribution: false,
+        zoom: false,
+      }),
+      target,
+      layers: [new Tile({ source: new Stamen({ layer: "toner" }) })],
+      view: new View({
+        center: transform(INIT_POINT, "EPSG:4326", "EPSG:3857"),
+        zoom: 8,
+      }),
+    });
+  }
+  public createBoundaryLayer(points: Coordinate[]) {
     const pointsTransformed = points.map((point: Coordinate) => [
       +point.longitude,
       +point.latitude,
@@ -32,16 +49,21 @@ export class MapService {
       new Polygon([pointsTransformed]).transform("EPSG:4326", "EPSG:3857")
     );
     const source = new VectorSource({ features: [polygonFeature] });
-    return new Vector({ source, style });
+    const layer = new Vector({ source, style });
+    layer.set("name", POLYGON_LAYER);
+
+    return layer;
   }
 
   public getLayerExtent(layer: any) {
     return layer.getSource().getExtent();
   }
 
-  public drawPolygon = async (map: Map, boundary: Coordinate[]) => {
+  public drawBoundary = async (map: Map, boundary: Coordinate[]) => {
     if (boundary) {
-      const layer = this.getBoundaryLayer(boundary);
+      this.removeBoundaryLayer(map); // Clear previous layer
+
+      const layer = this.createBoundaryLayer(boundary);
       const extent = this.getLayerExtent(layer);
 
       if (layer && extent && !isEmpty(extent)) {
@@ -50,6 +72,14 @@ export class MapService {
       }
     }
   };
+
+  public removeBoundaryLayer(map: Map) {
+    map.getLayers().forEach((layer) => {
+      if (layer.get("name") && layer.get("name") === POLYGON_LAYER) {
+        map.removeLayer(layer);
+      }
+    });
+  }
 
   public getPointsLayer = (points: any) => {
     const source = new VectorSource({
@@ -61,16 +91,7 @@ export class MapService {
       ),
     });
 
-    return new Vector({
-      source,
-      style: new Style({
-        image: new Circle({
-          radius: 3,
-          stroke: new Stroke({ color: color2, width: 4, lineCap: "round" }),
-          fill: new Fill({ color }),
-        }),
-      }),
-    });
+    return new Heatmap({ source });
   };
 
   public drawPoints = async (map: Map, points: any[]) => {

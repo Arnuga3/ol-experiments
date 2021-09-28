@@ -1,74 +1,56 @@
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
 
 import { IonButton, IonButtons, IonIcon, IonText } from "@ionic/react";
 import { closeCircleOutline, informationCircleSharp } from "ionicons/icons";
-import { Spinner } from "../../../components/Spinner";
 
-import { policeApiService } from "../../../services/PoliceApiService";
+import { getPoliceForceInformation } from "../../../redux/actions/mapActions";
+import { useMap } from "../../../hooks/mapHook";
 
-interface Props {
-  force: string;
-}
+export const InformationPopup: React.FC = () => {
+  const dispatch = useDispatch();
+  const { policeForceName, policeForce } = useMap();
 
-interface PopupState {
-  data: any;
-  loading: boolean;
-  open:  boolean;
-}
-
-export const Popup: React.FC<Props> = ({ force }) => {
-  const [state, setState] = useState<PopupState>({
-    data: null,
-    loading: false,
-    open: false,
-  });
-
-  const { data, loading, open } = state;
+  const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    if (force) {
-      retrieveForce(force);
+    if (policeForceName) {
+      dispatch(getPoliceForceInformation(policeForceName));   // 2. Retrieve data
     }
-  }, [force]);
+  }, [policeForceName]);  // 1. Listen for changes
 
-  const retrieveForce = async (force: string) => {
-    setState({ ...state, loading: true, open: true });
-    const forceData = await policeApiService.getForce(force);
-    setState({
-      ...state,
-      data: forceData,
-      loading: false,
-    });
-  };
+  useEffect(() => {
+    if (policeForce) {
+      setOpen(true);  // 4. Open popup to display data (if closed)
+    }
+  }, [policeForce]);  // 3. Listen for data changes
 
   return open ? (
     <Wrapper>
       <Content>
         <CloseIcon>
-          <IonIcon
-            icon={closeCircleOutline}
-            onClick={() => setState({ ...state, open: false })}
-          />
+          <IonIcon icon={closeCircleOutline} onClick={() => setOpen(false)} />
         </CloseIcon>
-        {loading && <Spinner name="crescent" color="secondary" />}
-        {data && (
+        {policeForce && (
           <>
-            {data.name && (
+            {policeForce.name && (
               <IonText>
-                <h4>{data.name}</h4>
+                <h4>{policeForce.name}</h4>
               </IonText>
             )}
             <Cards>
-              {data.engagement_methods &&
-                data.engagement_methods.map((method: any, index: number) => (
-                  <CardButton href={method.url} key={index}>
-                    <IonIcon color="secondary" icon={method.icon} />
-                    <IonText>
-                      <small>{method.name}</small>
-                    </IonText>
-                  </CardButton>
-                ))}
+              {policeForce.engagement_methods &&
+                policeForce.engagement_methods.map(
+                  (method: any, index: number) => (
+                    <CardButton href={method.url} key={index}>
+                      <IonIcon color="secondary" icon={method.icon} />
+                      <IonText>
+                        <small>{method.name}</small>
+                      </IonText>
+                    </CardButton>
+                  )
+                )}
             </Cards>
           </>
         )}
@@ -76,7 +58,7 @@ export const Popup: React.FC<Props> = ({ force }) => {
     </Wrapper>
   ) : (
     <ForceInfoButton>
-      <IonButton onClick={() => setState({ ...state, open: true })}>
+      <IonButton onClick={() => setOpen(true)}>
         <IonIcon
           slot="icon-only"
           color="secondary"

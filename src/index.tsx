@@ -1,14 +1,33 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
+import reportWebVitals from "./reportWebVitals";
+
+import { createStore, applyMiddleware } from "redux";
+import { Provider as ReduxProvider } from "react-redux";
+import { createLogger } from "redux-logger";
+import thunk from "redux-thunk";
+
+import reducer from './redux/reducers/index';
+import { NotificationsProvider } from "./components/NotificationsProvider";
+
+const logger = createLogger({
+  collapsed: true,
+  timestamp: false,
+  duration: true,
+});
+
+export const store = createStore(reducer, applyMiddleware(logger, thunk));
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ReduxProvider store={store}>
+      <App />
+      <NotificationsProvider />
+    </ReduxProvider>
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want your app to work offline and load faster, you can change

@@ -31,35 +31,35 @@ import PoliceForce from "./pages/police-forces/PoliceForce";
 import Crimes from "./pages/crimes/Crimes";
 import { shieldOutline, skullOutline } from "ionicons/icons";
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonTabs>
-
-        <IonRouterOutlet>
-          <Route exact path="/:tab(police-force)">
-            <PoliceForce />
-          </Route>
-          <Route exact path="/:tab(crimes)">
-            <Crimes />
-          </Route>
-          <Route exact path="/">
+const App: React.FC = () => {
+  return (
+    <IonApp>
+      <IonReactRouter>
+        <IonTabs>
+          <IonRouterOutlet>
+            <Route exact path="/:tab(police-force)">
+              <PoliceForce />
+            </Route>
+            <Route exact path="/:tab(crimes)">
+              <Crimes />
+            </Route>
+            <Route exact path="/">
               <Redirect from="/" to="/crimes" />
             </Route>
-        </IonRouterOutlet>
+          </IonRouterOutlet>
 
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="police-force" href="/police-force">
-            <IonIcon icon={shieldOutline}/>
-          </IonTabButton>
-          <IonTabButton tab="crimes" href="/crimes">
-            <IonIcon icon={skullOutline}/>
-          </IonTabButton>
-        </IonTabBar>
-        
-      </IonTabs>
-    </IonReactRouter>
-  </IonApp>
-);
+          <IonTabBar slot="bottom">
+            <IonTabButton tab="police-force" href="/police-force">
+              <IonIcon icon={shieldOutline} />
+            </IonTabButton>
+            <IonTabButton tab="crimes" href="/crimes">
+              <IonIcon icon={skullOutline} />
+            </IonTabButton>
+          </IonTabBar>
+        </IonTabs>
+      </IonReactRouter>
+    </IonApp>
+  );
+};
 
 export default App;

@@ -17,7 +17,7 @@ import { postcodeApiService } from "../services/PostcodeApiService";
 
 interface Props {
   placeholder: string;
-  onSelect: (postcode: string | null) => void;
+  onSelect: (postcode: string) => void;
 }
 
 const NOT_FOUND = "Not Found";
@@ -53,7 +53,6 @@ export const PostcodeSearch: React.FC<Props> = ({ placeholder, onSelect }) => {
       searchInput: null,
       postcodeOptions: [],
     });
-    onSelect(null);
   };
 
   const select = (option: string) => {
@@ -106,10 +105,9 @@ export const PostcodeSearch: React.FC<Props> = ({ placeholder, onSelect }) => {
 const Searchbar = styled(IonSearchbar)`
   padding: 0;
   --border-radius: 25px;
-  --icon-color: var(--ion-color-light);
-  --color: var(--ion-color-light);
+  --icon-color: var(--ion-color-primary);
+  --color: var(--ion-color-primary);
   --box-shadow: 0 4px 4px 1px rgba(0, 0, 0, 0.1);
-  --background: var(--ion-color-secondary-shade);
   text-align: left;
 `;
 

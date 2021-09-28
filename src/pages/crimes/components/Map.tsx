@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import "ol/ol.css";
 import { Map as OLMap, View } from "ol";
-import { Stamen } from "ol/source";
+import { OSM, Stamen } from "ol/source";
 import { Tile } from "ol/layer";
 import { transform } from "ol/proj";
 
@@ -12,6 +12,7 @@ import { mapService } from "../../../services/MapService";
 
 import { useIonToast } from "@ionic/react";
 import { defaults } from "ol/control";
+import TileLayer from "ol/layer/Tile";
 
 interface Props {
   postcode: string | null;
@@ -36,7 +37,9 @@ export const Map: React.FC<Props> = ({ postcode, onLoading, onData }) => {
 
   const displayBoundary = async (postcodeString: string) => {
     try {
-      const data = await policeApiService.getCrimesWithinOneMileByPostcode(postcodeString);
+      const data = await policeApiService.getCrimesWithinOneMileByPostcode(
+        postcodeString
+      );
       if (map && data) {
         mapService.drawPoints(map, data);
         onLoading(false);
@@ -55,7 +58,13 @@ export const Map: React.FC<Props> = ({ postcode, onLoading, onData }) => {
         zoom: false,
       }),
       target: mapRef.current,
-      layers: [new Tile({ source: new Stamen({ layer: "toner" }) })],
+      layers: [
+        new TileLayer({
+          source: new Stamen({
+            layer: "toner",
+          }),
+        }),
+      ],
       view: new View({
         center: transform(INIT_POINT, "EPSG:4326", "EPSG:3857"),
         zoom: 8,
@@ -72,4 +81,5 @@ export const Map: React.FC<Props> = ({ postcode, onLoading, onData }) => {
 
 const MapContainer = styled.div`
   height: 100%;
+  filter: invert(100%);
 `;
