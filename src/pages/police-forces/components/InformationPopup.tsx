@@ -3,28 +3,28 @@ import { useDispatch } from "react-redux";
 import styled from "styled-components";
 
 import { IonButton, IonButtons, IonIcon, IonText } from "@ionic/react";
-import { closeCircleOutline, informationCircleSharp } from "ionicons/icons";
+import { closeCircleOutline, shield } from "ionicons/icons";
 
-import { getPoliceForceInformation } from "../../../redux/actions/mapActions";
-import { useMap } from "../../../hooks/mapHook";
+import { getPoliceForceInformation } from "../../../redux/actions/policeForceActions";
+import { usePoliceForce } from "../../../hooks/policeForceHook";
 
 export const InformationPopup: React.FC = () => {
   const dispatch = useDispatch();
-  const { policeForceName, policeForce } = useMap();
+  const { policeForceName, policeForce } = usePoliceForce();
 
   const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (policeForceName) {
-      dispatch(getPoliceForceInformation(policeForceName));   // 2. Retrieve data
+      dispatch(getPoliceForceInformation(policeForceName)); // 2. Retrieve data
     }
-  }, [policeForceName]);  // 1. Listen for changes
+  }, [policeForceName]); // 1. Listen for changes
 
   useEffect(() => {
     if (policeForce) {
-      setOpen(true);  // 4. Open popup to display data (if closed)
+      setOpen(true); // 4. Open popup to display data (if closed)
     }
-  }, [policeForce]);  // 3. Listen for data changes
+  }, [policeForce]); // 3. Listen for data changes
 
   return open ? (
     <Wrapper>
@@ -57,15 +57,13 @@ export const InformationPopup: React.FC = () => {
       </Content>
     </Wrapper>
   ) : (
-    <ForceInfoButton>
-      <IonButton onClick={() => setOpen(true)}>
-        <IonIcon
-          slot="icon-only"
-          color="secondary"
-          icon={informationCircleSharp}
-        />
-      </IonButton>
-    </ForceInfoButton>
+    policeForce && (
+      <ForceInfoButton>
+        <IonButton onClick={() => setOpen(true)}>
+          <IonIcon slot="icon-only" color="secondary" icon={shield} />
+        </IonButton>
+      </ForceInfoButton>
+    )
   );
 };
 

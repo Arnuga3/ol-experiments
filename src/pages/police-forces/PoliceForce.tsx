@@ -8,7 +8,7 @@ import { Spinner } from "../../components/Spinner";
 import { Map } from "./components/Map";
 import { InformationPopup } from "./components/InformationPopup";
 import { PostcodeSearch } from "../../components/PostcodeSearch";
-import { getPoliceForceNameAndBoundary } from "../../redux/actions/mapActions";
+import { getPoliceForceNameAndBoundary } from "../../redux/actions/policeForceActions";
 
 const Index: React.FC = () => {
   const dispatch = useDispatch();

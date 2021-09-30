@@ -13,6 +13,7 @@ import { mapService } from "../../../services/MapService";
 import { useIonToast } from "@ionic/react";
 import { defaults } from "ol/control";
 import TileLayer from "ol/layer/Tile";
+import { useMap } from "../../../hooks/mapHook";
 
 interface Props {
   postcode: string | null;
@@ -26,6 +27,8 @@ export const Map: React.FC<Props> = ({ postcode, onLoading, onData }) => {
   const mapRef = useRef<any>(null);
   const [map, setMap] = useState<OLMap | null>(null);
 
+  const { zoom, center } = useMap();
+
   const [present] = useIonToast();
 
   useEffect(() => {
@@ -34,6 +37,15 @@ export const Map: React.FC<Props> = ({ postcode, onLoading, onData }) => {
       displayBoundary(postcode);
     }
   }, [postcode]);
+
+  useEffect(() => {
+    if (map && zoom && center) {
+      map.getView()
+        .setCenter(center)
+      map.getView()
+        .setZoom(zoom);
+    }
+  }, [zoom, center]);
 
   const displayBoundary = async (postcodeString: string) => {
     try {
@@ -73,6 +85,12 @@ export const Map: React.FC<Props> = ({ postcode, onLoading, onData }) => {
     setMap(initMap);
     setTimeout(() => {
       initMap.updateSize();
+      if (map && zoom && center) {
+        map.getView()
+          .setCenter(center)
+        map.getView()
+          .setZoom(zoom);
+      }
     }, 100);
   }, []);
 
@@ -81,5 +99,5 @@ export const Map: React.FC<Props> = ({ postcode, onLoading, onData }) => {
 
 const MapContainer = styled.div`
   height: 100%;
-  filter: invert(100%);
+  filter: brightness(92%);
 `;
