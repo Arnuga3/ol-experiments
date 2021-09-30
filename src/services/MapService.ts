@@ -11,6 +11,8 @@ import VectorSource from "ol/source/Vector";
 import "ol/ol.css";
 
 import { Coordinate } from "../interfaces/PoliceApi";
+import { Dispatch } from "redux";
+import { storeMapPosition } from "../redux/actions/mapActions";
 
 const color = [61, 194, 255, 1];
 
@@ -39,6 +41,20 @@ export class MapService {
         zoom: 8,
       }),
     });
+  }
+  public trackMapPosition(map: Map, dispatch: Dispatch) {
+    map.on("moveend", (e) => {
+      dispatch(
+        storeMapPosition(
+          map.getView().getZoom() as any,
+          map.getView().getCenter() as any
+        )
+      );
+    });
+  }
+  public updateMapPosition(map: Map, zoom: number, center: number[]) {
+    map.getView().setZoom(zoom);
+    map.getView().setCenter(center);
   }
   public createBoundaryLayer(points: Coordinate[]) {
     const pointsTransformed = points.map((point: Coordinate) => [

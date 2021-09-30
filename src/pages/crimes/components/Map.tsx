@@ -1,19 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 
-import "ol/ol.css";
-import { Map as OLMap, View } from "ol";
-import { OSM, Stamen } from "ol/source";
-import { Tile } from "ol/layer";
-import { transform } from "ol/proj";
-
 import { policeApiService } from "../../../services/PoliceApiService";
 import { mapService } from "../../../services/MapService";
 
 import { useIonToast } from "@ionic/react";
-import { defaults } from "ol/control";
-import TileLayer from "ol/layer/Tile";
 import { useMap } from "../../../hooks/mapHook";
+import { useDispatch } from "react-redux";
 
 interface Props {
   postcode: string | null;
@@ -21,15 +14,31 @@ interface Props {
   onData: (data: any) => void;
 }
 
-const INIT_POINT = [-1.140593, 52.740123];
-
 export const Map: React.FC<Props> = ({ postcode, onLoading, onData }) => {
-  const mapRef = useRef<any>(null);
-  const [map, setMap] = useState<OLMap | null>(null);
+  const dispatch = useDispatch();
+  const [present] = useIonToast();
 
   const { zoom, center } = useMap();
 
-  const [present] = useIonToast();
+  const mapRef = useRef<any>(null);
+  const [map, setMap] = useState<any>(null);
+
+  useEffect(() => {
+    const initMap = mapService.initMap(mapRef.current);
+
+    setTimeout(() => {
+      mapService.trackMapPosition(initMap, dispatch);
+      initMap.updateSize();
+    }, 100);
+
+    setMap(initMap);
+  }, []);
+
+  useEffect(() => {
+    if (map && zoom && center) {
+      mapService.updateMapPosition(map, zoom, center);
+    }
+  }, [map, zoom, center]);
 
   useEffect(() => {
     if (postcode) {
@@ -37,15 +46,6 @@ export const Map: React.FC<Props> = ({ postcode, onLoading, onData }) => {
       displayBoundary(postcode);
     }
   }, [postcode]);
-
-  useEffect(() => {
-    if (map && zoom && center) {
-      map.getView()
-        .setCenter(center)
-      map.getView()
-        .setZoom(zoom);
-    }
-  }, [zoom, center]);
 
   const displayBoundary = async (postcodeString: string) => {
     try {
@@ -62,37 +62,6 @@ export const Map: React.FC<Props> = ({ postcode, onLoading, onData }) => {
       present({ message: error, duration: 3000, color: "danger" });
     }
   };
-
-  useEffect(() => {
-    const initMap = new OLMap({
-      controls: defaults({
-        attribution: false,
-        zoom: false,
-      }),
-      target: mapRef.current,
-      layers: [
-        new TileLayer({
-          source: new Stamen({
-            layer: "toner",
-          }),
-        }),
-      ],
-      view: new View({
-        center: transform(INIT_POINT, "EPSG:4326", "EPSG:3857"),
-        zoom: 8,
-      }),
-    });
-    setMap(initMap);
-    setTimeout(() => {
-      initMap.updateSize();
-      if (map && zoom && center) {
-        map.getView()
-          .setCenter(center)
-        map.getView()
-          .setZoom(zoom);
-      }
-    }, 100);
-  }, []);
 
   return <MapContainer ref={mapRef} />;
 };
