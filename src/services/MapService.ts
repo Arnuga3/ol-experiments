@@ -6,6 +6,7 @@ import { Stamen } from "ol/source";
 import { defaults } from "ol/control";
 import { fromLonLat, transform } from "ol/proj";
 import { isEmpty } from "ol/extent";
+import { GeoJSON, KML } from "ol/format";
 
 import VectorSource from "ol/source/Vector";
 import "ol/ol.css";
@@ -13,6 +14,8 @@ import "ol/ol.css";
 import { Coordinate } from "../interfaces/PoliceApi";
 import { Dispatch } from "redux";
 import { storeMapPosition } from "../redux/actions/mapActions";
+
+import gj from "./../data/bedfordshire.json";
 
 const color = [61, 194, 255, 1];
 
@@ -71,6 +74,22 @@ export class MapService {
     return layer;
   }
 
+  public async createGEOJSONBoundaryLayer(force: string) {
+    const data = await import(`./../data/force-boundaries/${force}.json`);
+
+    const source = new VectorSource({
+      features: new GeoJSON().readFeatures(data).map((f) => {
+        f.getGeometry().transform("EPSG:4326", "EPSG:3857");
+        return f;
+      }),
+    });
+
+    const layer = new Vector({ source, style });
+    layer.set("name", POLYGON_LAYER);
+
+    return layer;
+  }
+
   public getLayerExtent(layer: any) {
     return layer.getSource().getExtent();
   }
@@ -80,6 +99,20 @@ export class MapService {
       this.removeBoundaryLayer(map); // Clear previous layer
 
       const layer = this.createBoundaryLayer(boundary);
+      const extent = this.getLayerExtent(layer);
+
+      if (layer && extent && !isEmpty(extent)) {
+        map.addLayer(layer);
+        map.getView().fit(extent);
+      }
+    }
+  };
+
+  public drawGEOJSONBoundary = async (map: Map, force: string) => {
+    if (force) {
+      this.removeBoundaryLayer(map); // Clear previous layer
+
+      const layer = await this.createGEOJSONBoundaryLayer(force);
       const extent = this.getLayerExtent(layer);
 
       if (layer && extent && !isEmpty(extent)) {

@@ -107,12 +107,11 @@ const Searchbar = styled(IonSearchbar)`
   --border-radius: 25px;
   --icon-color: var(--ion-color-primary);
   --color: var(--ion-color-primary);
-  --box-shadow: 0 4px 4px 1px rgba(0, 0, 0, 0.1);
+  --box-shadow: 0 2px 2px 1px rgba(0, 0, 0, 0.1);
   text-align: left;
 `;
 
 const Toolbar = styled.div`
-  position: absolute;
   margin-left: auto;
   margin-right: auto;
   left: 0;

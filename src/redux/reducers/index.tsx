@@ -1,6 +1,6 @@
 import { combineReducers } from "redux";
 import { mapReducer, State as MapState } from "./mapReducer";
-import { policeForceReducer, State as PoliceForceState } from "./policeForceReducer";
+import { policeDataReducer, State as PoliceDataState } from "./policeDataReducer";
 import {
   notificationsReducer,
   State as NotificationsState,
@@ -8,12 +8,12 @@ import {
 
 export interface AppState {
   mapState: MapState;
-  policeForceState: PoliceForceState;
+  policeDataState: PoliceDataState;
   notificationsState: NotificationsState;
 }
 
 export default combineReducers({
   mapState: mapReducer,
-  policeForceState: policeForceReducer,
+  policeDataState: policeDataReducer,
   notificationsState: notificationsReducer,
 });

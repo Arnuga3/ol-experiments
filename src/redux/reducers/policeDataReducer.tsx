@@ -1,13 +1,17 @@
 import { Reducer } from "redux";
-import { PoliceForceActions } from "../actions/policeForceActions";
+import { PoliceDataActions } from "../actions/policeDataActions";
 
 export interface State {
+  forces: { id: string; name: string }[],
+  force: any,
   boundary: any;
   policeForceName: string | null;
   policeForce: any;
 }
 
 const defaultState: State = {
+  forces: [],
+  force: null,
   boundary: null,
   policeForceName: null,
   policeForce: null,
@@ -15,14 +19,26 @@ const defaultState: State = {
 
 const reducer: Reducer<State> = (state: State = defaultState, action) => {
   switch (action.type) {
-    case PoliceForceActions.STORE_POLICE_FORCE_NAME_BOUNDARY:
+    case PoliceDataActions.STORE_POLICE_FORCES_LIST:
+      return {
+        ...state,
+        forces: action.forces,
+      };
+
+    case PoliceDataActions.STORE_POLICE_FORCE:
+      return {
+        ...state,
+        force: action.force,
+      };
+
+    case PoliceDataActions.STORE_POLICE_FORCE_NAME_BOUNDARY:
       return {
         ...state,
         boundary: action.boundary,
         policeForceName: action.policeForceName,
       };
 
-    case PoliceForceActions.STORE_POLICE_FORCE_INFO:
+    case PoliceDataActions.STORE_POLICE_FORCE_INFO:
       return {
         ...state,
         policeForce: action.policeForceInformation,
@@ -33,4 +49,4 @@ const reducer: Reducer<State> = (state: State = defaultState, action) => {
   }
 };
 
-export { reducer as policeForceReducer };
+export { reducer as policeDataReducer };

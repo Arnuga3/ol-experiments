@@ -27,9 +27,10 @@ import "@ionic/react/css/display.css";
 
 /* Theme variables */
 import "./theme/variables.css";
-import PoliceForce from "./pages/police-forces/PoliceForce";
+import PoliceForces from "./pages/police-forces/Index";
 import Crimes from "./pages/crimes/Crimes";
 import { shieldOutline, skullOutline } from "ionicons/icons";
+import PoliceForce from "./pages/police-forces/components/PoliceForce";
 
 const App: React.FC = () => {
   return (
@@ -38,8 +39,9 @@ const App: React.FC = () => {
         <IonTabs>
           <IonRouterOutlet>
             <Route exact path="/:tab(police-force)">
-              <PoliceForce />
+              <PoliceForces />
             </Route>
+            <Route exact path="/:tab(police-force)/:id" component={PoliceForce}/>
             <Route exact path="/:tab(crimes)">
               <Crimes />
             </Route>

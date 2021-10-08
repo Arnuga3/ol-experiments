@@ -17,8 +17,15 @@ export class PoliceApiService {
   // POLICE FORCE ENDPOINTS
 
   /** List of forces */
-  public getForces(): Promise<Force[]> {
-    return axios.get(`${this.url}/forces`);
+  public async getForces(): Promise<Force[] | any> {
+    try {
+      const response = await axios.get(`${this.url}/forces`);
+      if (response) {
+        return response.data;
+      }
+    } catch (e) {
+      throw new Error("Police forces not found");
+    }
   }
 
   /** Force */
