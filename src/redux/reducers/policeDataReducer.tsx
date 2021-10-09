@@ -2,10 +2,10 @@ import { Reducer } from "redux";
 import { PoliceDataActions } from "../actions/policeDataActions";
 
 export interface State {
-  forces: { id: string; name: string }[],
-  force: any,
+  forces: { id: string; name: string }[];
+  force: any;
   boundary: any;
-  policeForceName: string | null;
+  forceId: string | null;
   policeForce: any;
 }
 
@@ -13,7 +13,7 @@ const defaultState: State = {
   forces: [],
   force: null,
   boundary: null,
-  policeForceName: null,
+  forceId: null,
   policeForce: null,
 };
 
@@ -31,11 +31,17 @@ const reducer: Reducer<State> = (state: State = defaultState, action) => {
         force: action.force,
       };
 
+    case PoliceDataActions.STORE_POLICE_FORCE_ID:
+      return {
+        ...state,
+        forceId: action.forceId,
+      };
+
     case PoliceDataActions.STORE_POLICE_FORCE_NAME_BOUNDARY:
       return {
         ...state,
         boundary: action.boundary,
-        policeForceName: action.policeForceName,
+        forceId: action.policeForceName,
       };
 
     case PoliceDataActions.STORE_POLICE_FORCE_INFO:

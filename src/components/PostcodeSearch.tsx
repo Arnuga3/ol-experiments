@@ -13,7 +13,7 @@ import {
 import { useState } from "react";
 import styled from "styled-components";
 
-import { postcodeApiService } from "../services/PostcodeApiService";
+import { postcodeService } from "../services/PostcodeApiService";
 
 interface Props {
   placeholder: string;
@@ -35,7 +35,7 @@ export const PostcodeSearch: React.FC<Props> = ({ placeholder, onSelect }) => {
     const input = e.detail.value;
 
     if (input.length > 2 && needOptions) {
-      const options = await postcodeApiService.getPostcodeSuggetions(input);
+      const options = await postcodeService.getSuggetions(input);
 
       setState({
         ...state,

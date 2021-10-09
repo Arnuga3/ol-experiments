@@ -6,7 +6,7 @@ import { Stamen } from "ol/source";
 import { defaults } from "ol/control";
 import { fromLonLat, transform } from "ol/proj";
 import { isEmpty } from "ol/extent";
-import { GeoJSON, KML } from "ol/format";
+import { GeoJSON } from "ol/format";
 
 import VectorSource from "ol/source/Vector";
 import "ol/ol.css";
@@ -14,8 +14,6 @@ import "ol/ol.css";
 import { Coordinate } from "../interfaces/PoliceApi";
 import { Dispatch } from "redux";
 import { storeMapPosition } from "../redux/actions/mapActions";
-
-import gj from "./../data/bedfordshire.json";
 
 const color = [61, 194, 255, 1];
 
@@ -28,7 +26,7 @@ const style = new Style({
 });
 
 const INIT_POINT = [-1.140593, 52.740123];
-const POLYGON_LAYER = "POLYGON_LAYER";
+const BOUNDARY_LAYER = "BOUNDARY_LAYER";
 
 export class MapService {
   public initMap(target: any) {
@@ -45,6 +43,7 @@ export class MapService {
       }),
     });
   }
+
   public trackMapPosition(map: Map, dispatch: Dispatch) {
     map.on("moveend", (e) => {
       dispatch(
@@ -55,11 +54,13 @@ export class MapService {
       );
     });
   }
+
   public updateMapPosition(map: Map, zoom: number, center: number[]) {
     map.getView().setZoom(zoom);
     map.getView().setCenter(center);
   }
-  public createBoundaryLayer(points: Coordinate[]) {
+
+  public createBoundaryLayerFromCoordinates(points: Coordinate[]) {
     const pointsTransformed = points.map((point: Coordinate) => [
       +point.longitude,
       +point.latitude,
@@ -69,62 +70,46 @@ export class MapService {
     );
     const source = new VectorSource({ features: [polygonFeature] });
     const layer = new Vector({ source, style });
-    layer.set("name", POLYGON_LAYER);
-
+    layer.set("name", BOUNDARY_LAYER);
     return layer;
   }
 
-  public async createGEOJSONBoundaryLayer(force: string) {
-    const data = await import(`./../data/force-boundaries/${force}.json`);
+  public drawBoundaryFromCoordinates = (map: Map, boundary: Coordinate[]) => {
+    this.clearPreviousBoundaryLayer(map);
+    const layer = this.createBoundaryLayerFromCoordinates(boundary);
+    map.addLayer(layer);
+    this.fitToExtent(map, layer);
+  };
 
+  public createBoundaryLayerFromGeoJson(boundary: any) {
     const source = new VectorSource({
-      features: new GeoJSON().readFeatures(data).map((f) => {
+      features: new GeoJSON().readFeatures(boundary).map((f) => {
         f.getGeometry().transform("EPSG:4326", "EPSG:3857");
         return f;
       }),
     });
-
     const layer = new Vector({ source, style });
-    layer.set("name", POLYGON_LAYER);
-
+    layer.set("name", BOUNDARY_LAYER);
     return layer;
   }
 
-  public getLayerExtent(layer: any) {
-    return layer.getSource().getExtent();
+  public drawBoundaryFromGeoJson = (map: Map, boundary: any) => {
+    this.clearPreviousBoundaryLayer(map);
+    const layer = this.createBoundaryLayerFromGeoJson(boundary);
+    map.addLayer(layer);
+    setTimeout(() => this.fitToExtent(map, layer), 100);
+  };
+
+  public fitToExtent(map: Map, layer: any) {
+    const extent = layer.getSource().getExtent();
+    if (layer && extent && !isEmpty(extent)) {
+      map.getView().fit(extent);
+    }
   }
 
-  public drawBoundary = async (map: Map, boundary: Coordinate[]) => {
-    if (boundary) {
-      this.removeBoundaryLayer(map); // Clear previous layer
-
-      const layer = this.createBoundaryLayer(boundary);
-      const extent = this.getLayerExtent(layer);
-
-      if (layer && extent && !isEmpty(extent)) {
-        map.addLayer(layer);
-        map.getView().fit(extent);
-      }
-    }
-  };
-
-  public drawGEOJSONBoundary = async (map: Map, force: string) => {
-    if (force) {
-      this.removeBoundaryLayer(map); // Clear previous layer
-
-      const layer = await this.createGEOJSONBoundaryLayer(force);
-      const extent = this.getLayerExtent(layer);
-
-      if (layer && extent && !isEmpty(extent)) {
-        map.addLayer(layer);
-        map.getView().fit(extent);
-      }
-    }
-  };
-
-  public removeBoundaryLayer(map: Map) {
+  public clearPreviousBoundaryLayer(map: Map) {
     map.getLayers().forEach((layer) => {
-      if (layer.get("name") && layer.get("name") === POLYGON_LAYER) {
+      if (layer.get("name") && layer.get("name") === BOUNDARY_LAYER) {
         map.removeLayer(layer);
       }
     });
@@ -139,19 +124,14 @@ export class MapService {
           })
       ),
     });
-
     return new Heatmap({ source });
   };
 
   public drawPoints = async (map: Map, points: any[]) => {
     if (points) {
       const layer = this.getPointsLayer(points);
-      const extent = this.getLayerExtent(layer);
-
-      if (layer && extent && !isEmpty(extent)) {
-        map.addLayer(layer);
-        map.getView().fit(extent);
-      }
+      map.addLayer(layer);
+      this.fitToExtent(map, layer);
     }
   };
 }

@@ -16,31 +16,21 @@ import {
 import { shieldOutline } from "ionicons/icons";
 
 import {
-  getPoliceForceNameAndBoundary,
+  getPoliceForceFromPostcode,
   getPoliceForcesList,
 } from "../../redux/actions/policeDataActions";
 import { usePoliceData } from "../../hooks/policeDataHook";
 
 import { PostcodeSearch } from "../../components/PostcodeSearch";
-import { Spinner } from "../../components/Spinner";
 
 const Index: React.FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const { forces, policeForceName } = usePoliceData();
-
-  const [loading, setLoading] = useState<boolean>(false);
+  const { forces } = usePoliceData();
 
   useEffect(() => {
     dispatch(getPoliceForcesList());
   }, []);
-
-  useEffect(() => {
-    if (history && policeForceName) {
-      setLoading(false);
-      history.push(`/police-force/${policeForceName}`);
-    }
-  }, [policeForceName]);
 
   return (
     <IonPage>
@@ -49,14 +39,12 @@ const Index: React.FC = () => {
           <PostcodeSearch
             placeholder="Search by postcode"
             onSelect={(postcode: string) => {
-              setLoading(true);
-              dispatch(getPoliceForceNameAndBoundary(postcode));
+              dispatch(getPoliceForceFromPostcode(postcode, history));
             }}
           />
         </IonToolbar>
       </IonHeader>
       <Content fullscreen>
-        {loading && <Spinner name="crescent" color="secondary" />}
         <List lines="none">
           <IonListHeader>
             <b>Police Forces</b>

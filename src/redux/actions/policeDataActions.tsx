@@ -1,10 +1,14 @@
 import { Dispatch } from "redux";
-import { policeApiService } from "../../services/PoliceApiService";
 import { showError } from "./notificationsActions";
+
+import forces from './../../data/forces.json';
+import { policeForceService } from "../../services/policeApiServices/PoliceForce";
+import { policeNeighbourhoodService } from "../../services/policeApiServices/PoliceNeighbourhood";
 
 export enum PoliceDataActions {
   STORE_POLICE_FORCES_LIST = "STORE_POLICE_FORCES_LIST",
   STORE_POLICE_FORCE = "STORE_POLICE_FORCE",
+  STORE_POLICE_FORCE_ID = "STORE_POLICE_FORCE_ID",
   STORE_POLICE_FORCE_NAME_BOUNDARY = "STORE_POLICE_FORCE_NAME_BOUNDARY",
   STORE_POLICE_FORCE_INFO = "STORE_POLICE_FORCE_INFO",
 }
@@ -17,6 +21,11 @@ export interface StorePoliceForcesList {
 export interface StorePoliceForce {
   type: PoliceDataActions.STORE_POLICE_FORCE;
   force: any;
+}
+
+export interface StorePoliceForceId {
+  type: PoliceDataActions.STORE_POLICE_FORCE_ID;
+  forceId: string;
 }
 
 export interface StorePoliceForceNameAndBoundary {
@@ -42,6 +51,11 @@ export const storePoliceForce = (force: any): StorePoliceForce => ({
   force,
 });
 
+export const storePoliceForceId = (forceId: string): StorePoliceForceId => ({
+  type: PoliceDataActions.STORE_POLICE_FORCE_ID,
+  forceId,
+});
+
 export const storePoliceForceNameAndBoundary = (
   boundary: any,
   policeForceName: string
@@ -61,9 +75,8 @@ export const storePoliceForceInformation = (
 export function getPoliceForcesList() {
   return async (dispatch: Dispatch) => {
     try {
-      const data = await policeApiService.getForces();
-      if (data) {
-        dispatch(storePoliceForcesList(data));
+      if (forces) {
+        dispatch(storePoliceForcesList(forces));
       }
     } catch (e: any) {
       dispatch(showError(e));
@@ -71,12 +84,25 @@ export function getPoliceForcesList() {
   };
 }
 
-export function getPoliceForce(force: string) {
+export function getPoliceForce(forceId: string) {
   return async (dispatch: Dispatch) => {
     try {
-      const data = await policeApiService.getForce(force);
+      const data = await policeForceService.get(forceId);
       if (data) {
         dispatch(storePoliceForce(data));
+      }
+    } catch (e: any) {
+      dispatch(showError(e));
+    }
+  };
+}
+
+export function getPoliceForceFromPostcode(postcode: string, history: any) {
+  return async (dispatch: Dispatch) => {
+    try {
+      const data = await policeNeighbourhoodService.getBoundaryFromPostcode(postcode);
+      if (data && data.policeForceName) {
+        history.push(`/police-force/${data.policeForceName}`);
       }
     } catch (e: any) {
       dispatch(showError(e));
@@ -87,7 +113,7 @@ export function getPoliceForce(force: string) {
 export function getPoliceForceNameAndBoundary(postcode: string) {
   return async (dispatch: Dispatch) => {
     try {
-      const data = await policeApiService.getNHBoundaryByPostcode(postcode);
+      const data = await policeNeighbourhoodService.getBoundaryFromPostcode(postcode);
       if (data) {
         dispatch(
           storePoliceForceNameAndBoundary(data.boundary, data.policeForceName)
@@ -99,10 +125,10 @@ export function getPoliceForceNameAndBoundary(postcode: string) {
   };
 }
 
-export function getPoliceForceInformation(policeForceName: string) {
+export function getPoliceForceInformation(forceId: string) {
   return async (dispatch: Dispatch) => {
     try {
-      const data = await policeApiService.getForce(policeForceName);
+      const data = await policeForceService.get(forceId);
       if (data) {
         dispatch(storePoliceForceInformation(data));
       }

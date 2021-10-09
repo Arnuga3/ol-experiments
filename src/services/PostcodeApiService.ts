@@ -4,7 +4,7 @@ import { Coordinate } from "../interfaces/PoliceApi";
 export class PostcodeApiService {
   private url: string = "https://api.postcodes.io/postcodes";
 
-  public async getPostcode(postcode: string): Promise<any | null> {
+  public async get(postcode: string): Promise<any | null> {
     const response = await axios.get(`${this.url}/${postcode}`);
     if (response) {
       return response.data.result;
@@ -12,7 +12,7 @@ export class PostcodeApiService {
     return null;
   }
 
-  public async getPostcodeSuggetions(postcode: string): Promise<any | null> {
+  public async getSuggetions(postcode: string): Promise<any | null> {
     const response = await axios.get(`${this.url}/${postcode}/autocomplete`);
     if (response) {
       return response.data.result;
@@ -20,11 +20,11 @@ export class PostcodeApiService {
     return null;
   }
 
-  public async getPostcodeCoordinates(
+  public async getCoordinates(
     postcodeString: string
   ): Promise<Coordinate | null> {
     try {
-      const postcode = await this.getPostcode(postcodeString);
+      const postcode = await this.get(postcodeString);
       if (postcode) {
         return {
           latitude: postcode.latitude,
@@ -38,4 +38,4 @@ export class PostcodeApiService {
   }
 }
 
-export const postcodeApiService = new PostcodeApiService();
+export const postcodeService = new PostcodeApiService();

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 
-import { policeApiService } from "../../../services/PoliceApiService";
+import { crimesService } from "../../../services/policeApiServices/Crimes";
 import { mapService } from "../../../services/MapService";
 
 import { useIonToast } from "@ionic/react";
@@ -49,7 +49,7 @@ export const Map: React.FC<Props> = ({ postcode, onLoading, onData }) => {
 
   const displayBoundary = async (postcodeString: string) => {
     try {
-      const data = await policeApiService.getCrimesWithinOneMileByPostcode(
+      const data = await crimesService.getWithinOneMileByPostcode(
         postcodeString
       );
       if (map && data) {
