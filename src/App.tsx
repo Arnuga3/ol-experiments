@@ -30,9 +30,19 @@ import "./theme/variables.css";
 import PoliceForces from "./pages/police-forces/Index";
 import Crimes from "./pages/crimes/Crimes";
 import { shieldOutline, skullOutline } from "ionicons/icons";
-import PoliceForce from "./pages/police-forces/components/PoliceForce";
+import PoliceForce from "./pages/police-forces/PoliceForce";
+import PoliceForceNeighbourhood from "./pages/police-forces/PoliceForceNeighbourhood";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { getPoliceForcesList } from "./redux/actions/police/policeForceActions";
 
 const App: React.FC = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+      dispatch(getPoliceForcesList());
+  }, []);
+
   return (
     <IonApp>
       <IonReactRouter>
@@ -41,7 +51,16 @@ const App: React.FC = () => {
             <Route exact path="/:tab(police-force)">
               <PoliceForces />
             </Route>
-            <Route exact path="/:tab(police-force)/:id" component={PoliceForce}/>
+            <Route
+              exact
+              path="/:tab(police-force)/:id"
+              component={PoliceForce}
+            />
+            <Route
+              exact
+              path="/:tab(police-force)/:id/neighbourhood/:id"
+              component={PoliceForceNeighbourhood}
+            />
             <Route exact path="/:tab(crimes)">
               <Crimes />
             </Route>

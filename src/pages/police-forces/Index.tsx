@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
@@ -13,24 +11,23 @@ import {
   IonPage,
   IonToolbar,
 } from "@ionic/react";
-import { shieldOutline } from "ionicons/icons";
+import { shieldHalfOutline } from "ionicons/icons";
 
-import {
-  getPoliceForceFromPostcode,
-  getPoliceForcesList,
-} from "../../redux/actions/policeDataActions";
-import { usePoliceData } from "../../hooks/policeDataHook";
+import { usePoliceData } from "../../hooks/police/policeDataHook";
 
 import { PostcodeSearch } from "../../components/PostcodeSearch";
+import { policeForceService } from "../../services/policeApiServices/PoliceForce";
 
 const Index: React.FC = () => {
-  const dispatch = useDispatch();
   const history = useHistory();
   const { forces } = usePoliceData();
 
-  useEffect(() => {
-    dispatch(getPoliceForcesList());
-  }, []);
+  const findForceByPostcode = async (postcode: string) => {
+    const forceId = await policeForceService.findByPostcode(postcode);
+    if (forceId) {
+      history.push(`/police-force/${forceId}`);
+    }
+  };
 
   return (
     <IonPage>
@@ -38,24 +35,24 @@ const Index: React.FC = () => {
         <IonToolbar>
           <PostcodeSearch
             placeholder="Search by postcode"
-            onSelect={(postcode: string) => {
-              dispatch(getPoliceForceFromPostcode(postcode, history));
-            }}
+            onSelect={async (postcode: string) => findForceByPostcode(postcode)}
           />
         </IonToolbar>
       </IonHeader>
       <Content fullscreen>
-        <List lines="none">
-          <IonListHeader>
-            <b>Police Forces</b>
-          </IonListHeader>
-          {forces.map((force: { id: string; name: string }) => (
-            <IonItem key={force.id} routerLink={`/police-force/${force.id}`}>
-              <IonIcon icon={shieldOutline} slot="start" color="medium" />
-              {force.name}
-            </IonItem>
-          ))}
-        </List>
+        <Wrapper>
+          <IonList lines="none">
+            <IonListHeader>
+              <b>UK Police Forces</b>
+            </IonListHeader>
+            {forces.map((force: { id: string; name: string }) => (
+              <IonItem key={force.id} routerLink={`/police-force/${force.id}`}>
+                <IonIcon icon={shieldHalfOutline} slot="start" color="medium" />
+                {force.name}
+              </IonItem>
+            ))}
+          </IonList>
+        </Wrapper>
       </Content>
     </IonPage>
   );
@@ -69,6 +66,9 @@ const Content = styled(IonContent)`
   z-index: 1;
 `;
 
-const List = styled(IonList)`
+const Wrapper = styled.div`
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
   z-index: 1;
 `;

@@ -1,21 +1,21 @@
-export interface Force {
+export interface ForceListItem {
   id: string;
   name: string;
 }
 
-export interface ForceSpecific extends Force {
+export interface Force extends ForceListItem {
   url: string;
   telephone: string;
   description: string;
   engagement_methods: any[];
 }
 
-export interface Neighbourhood {
+export interface NeighbourhoodListItem {
   id: string;
   name: string;
 }
 
-export interface NeighbourhoodSpecific extends Neighbourhood {
+export interface Neighbourhood extends NeighbourhoodListItem {
   url_force: string;
   contact_details: any;
   links: any[];

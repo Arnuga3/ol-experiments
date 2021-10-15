@@ -1,6 +1,6 @@
 import { Map, View, Feature } from "ol";
 import { Point, Polygon } from "ol/geom";
-import { Style, Circle, Fill, Stroke } from "ol/style";
+import { Style, Circle, Fill, Stroke, Icon } from "ol/style";
 import { Heatmap, Vector, Tile } from "ol/layer";
 import { Stamen } from "ol/source";
 import { defaults } from "ol/control";
@@ -15,18 +15,45 @@ import { Coordinate } from "../interfaces/PoliceApi";
 import { Dispatch } from "redux";
 import { storeMapPosition } from "../redux/actions/mapActions";
 
+import pin from "../data/pin.png";
+
 const color = [61, 194, 255, 1];
 
 const style = new Style({
   stroke: new Stroke({
     color,
-    width: 4,
+    width: 3,
     lineCap: "round",
   }),
 });
 
-const INIT_POINT = [-1.140593, 52.740123];
-const BOUNDARY_LAYER = "BOUNDARY_LAYER";
+const INIT_POINT = [-1.8, 53.6];
+const DRAWING_LAYER = "DRAWING_LAYER";
+
+function getStyles(options: any = null) {
+  return new Style({
+    stroke: getStroke(options?.stroke),
+    fill: getFill(options?.fill),
+  });
+}
+
+function getStroke(options: any) {
+  const strokeOptions = {
+    color,
+    width: 3,
+    lineCap: "round",
+    ...options ? options : {},
+  };
+  return new Stroke(strokeOptions);
+}
+
+function getFill(options: any) {
+  const fillOptions = {
+    color: [0, 0, 0, 0.05],
+    ...options ? options : {},
+  };
+  return new Fill(fillOptions);
+}
 
 export class MapService {
   public initMap(target: any) {
@@ -39,7 +66,7 @@ export class MapService {
       layers: [new Tile({ source: new Stamen({ layer: "toner" }) })],
       view: new View({
         center: transform(INIT_POINT, "EPSG:4326", "EPSG:3857"),
-        zoom: 8,
+        zoom: 6,
       }),
     });
   }
@@ -60,7 +87,7 @@ export class MapService {
     map.getView().setCenter(center);
   }
 
-  public createBoundaryLayerFromCoordinates(points: Coordinate[]) {
+  public createBoundaryLayerFromCoordinates(points: Coordinate[], styles: any) {
     const pointsTransformed = points.map((point: Coordinate) => [
       +point.longitude,
       +point.latitude,
@@ -69,16 +96,22 @@ export class MapService {
       new Polygon([pointsTransformed]).transform("EPSG:4326", "EPSG:3857")
     );
     const source = new VectorSource({ features: [polygonFeature] });
-    const layer = new Vector({ source, style });
-    layer.set("name", BOUNDARY_LAYER);
+    const layer = new Vector({ source, style: getStyles(styles) });
+    layer.set("name", DRAWING_LAYER);
     return layer;
   }
 
-  public drawBoundaryFromCoordinates = (map: Map, boundary: Coordinate[]) => {
-    this.clearPreviousBoundaryLayer(map);
-    const layer = this.createBoundaryLayerFromCoordinates(boundary);
+  public drawBoundaryFromCoordinates = (
+    map: Map,
+    boundary: Coordinate[],
+    fitToExtent = true,
+    styles: any = null,
+  ) => {
+    const layer = this.createBoundaryLayerFromCoordinates(boundary, styles);
     map.addLayer(layer);
-    this.fitToExtent(map, layer);
+    if (fitToExtent) {
+      this.fitToExtent(map, layer);
+    }
   };
 
   public createBoundaryLayerFromGeoJson(boundary: any) {
@@ -89,31 +122,66 @@ export class MapService {
       }),
     });
     const layer = new Vector({ source, style });
-    layer.set("name", BOUNDARY_LAYER);
+    layer.set("name", DRAWING_LAYER);
     return layer;
   }
 
-  public drawBoundaryFromGeoJson = (map: Map, boundary: any) => {
-    this.clearPreviousBoundaryLayer(map);
+  public drawBoundaryFromGeoJson = (
+    map: Map,
+    boundary: any,
+    fitToExtent = true
+  ) => {
     const layer = this.createBoundaryLayerFromGeoJson(boundary);
     map.addLayer(layer);
-    setTimeout(() => this.fitToExtent(map, layer), 100);
+    if (fitToExtent) {
+      this.fitToExtent(map, layer);
+    }
+  };
+
+  public drawPin = (map: Map, coordinates: Coordinate) => {
+    const layer = this.pinLayer(coordinates);
+    map.addLayer(layer);
   };
 
   public fitToExtent(map: Map, layer: any) {
-    const extent = layer.getSource().getExtent();
-    if (layer && extent && !isEmpty(extent)) {
-      map.getView().fit(extent);
-    }
+    setTimeout(() => {
+      const extent = layer.getSource().getExtent();
+      if (layer && extent && !isEmpty(extent)) {
+        map.getView().fit(extent);
+      }
+    }, 100);
   }
 
-  public clearPreviousBoundaryLayer(map: Map) {
+  public clear(map: Map) {
     map.getLayers().forEach((layer) => {
-      if (layer.get("name") && layer.get("name") === BOUNDARY_LAYER) {
+      if (layer && layer.get("name") && layer.get("name") === DRAWING_LAYER) {
         map.removeLayer(layer);
       }
     });
   }
+
+  public pinLayer = (coordinate: Coordinate) => {
+    const pinFeature = new Feature({
+      geometry: new Point(
+        fromLonLat([+coordinate.longitude, +coordinate.latitude])
+      ),
+    });
+
+    const source = new VectorSource({
+      features: [pinFeature],
+    });
+    return new Vector({
+      source,
+      style: new Style({
+        image: new Icon({
+          anchor: [0.5, 32],
+          anchorXUnits: "fraction",
+          anchorYUnits: "pixels",
+          src: pin,
+        }),
+      }),
+    });
+  };
 
   public getPointsLayer = (points: any) => {
     const source = new VectorSource({
@@ -127,11 +195,13 @@ export class MapService {
     return new Heatmap({ source });
   };
 
-  public drawPoints = async (map: Map, points: any[]) => {
+  public drawPoints = async (map: Map, points: any[], fitToExtent = true) => {
     if (points) {
       const layer = this.getPointsLayer(points);
       map.addLayer(layer);
-      this.fitToExtent(map, layer);
+      if (fitToExtent) {
+        this.fitToExtent(map, layer);
+      }
     }
   };
 }

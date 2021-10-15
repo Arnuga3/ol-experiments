@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { mapService } from "../../../services/MapService";
+import { mapService } from "../../../../services/MapService";
 
 interface Props {
   forceId: string;
 }
 
-export const Map: React.FC<Props> = ({ forceId }) => {
+export const ForceMap: React.FC<Props> = ({ forceId }) => {
   const mapRef = useRef<any>(null);
   const [map, setMap] = useState<any>(null);
 
@@ -23,9 +23,9 @@ export const Map: React.FC<Props> = ({ forceId }) => {
   }, []);
 
   const drawForceBoundary = async (forceId: string) => {
-      const boundary = await import(`./../../../data/force-boundaries/${forceId}.json`);
+      const boundary = await import(`./../../../../data/force-boundaries/${forceId}.json`);
       mapService.drawBoundaryFromGeoJson(map, boundary);
-  }
+  };
 
   return <MapContainer ref={mapRef} />;
 };

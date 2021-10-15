@@ -1,53 +1,97 @@
 import { Reducer } from "redux";
-import { PoliceDataActions } from "../actions/policeDataActions";
+import { Force, ForceListItem } from "../../interfaces/PoliceApi";
+import { PoliceDataActions } from "../actions/police/policeForceActions";
+import { PoliceNeighbourhoodActions } from "../actions/police/policeNeighbourhoodActions";
 
 export interface State {
-  forces: { id: string; name: string }[];
-  force: any;
-  boundary: any;
-  forceId: string | null;
-  policeForce: any;
+  dataset: any;
+  forces: ForceListItem[];
+  neighbourhoodsIndexMap: any;
 }
 
 const defaultState: State = {
+  dataset: null,
   forces: [],
-  force: null,
-  boundary: null,
-  forceId: null,
-  policeForce: null,
+  neighbourhoodsIndexMap: {},
 };
 
 const reducer: Reducer<State> = (state: State = defaultState, action) => {
+  const force = action.forceId;
+  const neighbourhood = action.neighbourhoodId;
+
   switch (action.type) {
     case PoliceDataActions.STORE_POLICE_FORCES_LIST:
       return {
         ...state,
         forces: action.forces,
+        dataset: toMap(action.forces),
       };
 
     case PoliceDataActions.STORE_POLICE_FORCE:
       return {
         ...state,
-        force: action.force,
+        dataset: updateRecord(state.dataset, action.force),
       };
 
-    case PoliceDataActions.STORE_POLICE_FORCE_ID:
+    // case PoliceDataActions.STORE_POLICE_FORCE_NAME_BOUNDARY:
+    //   return {
+    //     ...state,
+    //     boundary: action.boundary,
+    //     selectedForce: action.policeForceName,
+    //   };
+
+    // case PoliceDataActions.STORE_POLICE_FORCE_INFO:
+    //   return {
+    //     ...state,
+    //     policeForce: action.policeForceInformation,
+    //   };
+
+    case PoliceNeighbourhoodActions.STORE_POLICE_FORCES_NEIGHBOURHOOD_LIST:
+      const map = toMap(action.neighbourhoods);
       return {
         ...state,
-        forceId: action.forceId,
+        dataset: {
+          ...state.dataset,
+          [force]: {
+            ...state.dataset[force],
+            neighbourhoods: action.neighbourhoods,
+            neighbourhoodsMap: map,
+          },
+        },
+        neighbourhoodsIndexMap: { ...state.neighbourhoodsIndexMap, ...map },
       };
 
-    case PoliceDataActions.STORE_POLICE_FORCE_NAME_BOUNDARY:
+    case PoliceNeighbourhoodActions.STORE_POLICE_FORCES_NEIGHBOURHOOD:
       return {
         ...state,
-        boundary: action.boundary,
-        forceId: action.policeForceName,
+        dataset: {
+          ...state.dataset,
+          [force]: {
+            ...state.dataset[force],
+            neighbourhoodsMap: updateRecord(
+              state.dataset[force].neighbourhoodsMap,
+              action.neighbourhood
+            ),
+          },
+        },
       };
 
-    case PoliceDataActions.STORE_POLICE_FORCE_INFO:
+    case PoliceNeighbourhoodActions.STORE_POLICE_FORCES_NEIGHBOURHOOD_BOUNDARY:
       return {
         ...state,
-        policeForce: action.policeForceInformation,
+        dataset: {
+          ...state.dataset,
+          [force]: {
+            ...state.dataset[force],
+            neighbourhoodsMap: {
+              ...state.dataset[force].neighbourhoodsMap,
+              [neighbourhood]: {
+                ...state.dataset[force].neighbourhoodsMap[neighbourhood],
+                boundary: action.boundary,
+              },
+            },
+          },
+        },
       };
 
     default:
@@ -56,3 +100,23 @@ const reducer: Reducer<State> = (state: State = defaultState, action) => {
 };
 
 export { reducer as policeDataReducer };
+
+function toMap(forcesList: any[]) {
+  return forcesList.reduce(
+    (map: any, { id, name, forceId }: any) => ({
+      ...map,
+      [id]: { id, name, forceId },
+    }),
+    {}
+  );
+}
+
+function updateRecord(dataset: any, record: Force) {
+  return {
+    ...dataset,
+    [record.id]: {
+      ...dataset[record.id],
+      data: record,
+    },
+  };
+}

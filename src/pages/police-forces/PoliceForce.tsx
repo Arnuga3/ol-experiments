@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { RouteComponentProps } from "react-router-dom";
+import { usePoliceForce } from "../../hooks/police/policeForceHook";
 import styled from "styled-components";
 
 import {
@@ -9,31 +9,39 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
-  IonLabel,
   IonPage,
   IonSegment,
   IonSegmentButton,
   IonText,
   IonToolbar,
-  useIonViewWillEnter,
+  useIonViewDidEnter,
 } from "@ionic/react";
-import { mapOutline } from "ionicons/icons";
-import { getPoliceForce } from "../../../redux/actions/policeDataActions";
-import { usePoliceData } from "../../../hooks/policeDataHook";
-import { Map } from "./Map";
-import EngagementMethods from "./EngagementMethods";
+
+import {
+  informationCircleOutline,
+  mapOutline,
+  shieldOutline,
+} from "ionicons/icons";
+
+import { RouteComponentProps } from "react-router-dom";
+
+import { ForceMap } from "./components/force/ForceMap";
+import EngagementMethods from "./components/force/EngagementMethods";
+import NeighbourhoodsList from "./components/neighbourhood/NeighbourhoodsList";
+
+import { getPoliceForce } from "../../redux/actions/police/policeForceActions";
 
 interface PoliceForceProps extends RouteComponentProps<{ id: string }> {}
 
 const PoliceForce: React.FC<PoliceForceProps> = ({ match }) => {
-  const dispatch = useDispatch();
-  const { force } = usePoliceData();
-
-  const [segment, setSegment] = useState<string | null>("map");
   const forceId = match.params.id;
+  const [segment, setSegment] = useState<string | null>("map");
 
-  useIonViewWillEnter(() => {
-    if (forceId) {
+  const dispatch = useDispatch();
+  const force = usePoliceForce(forceId);
+
+  useIonViewDidEnter(() => {
+    if (forceId && !force.data) {
       dispatch(getPoliceForce(forceId));
     }
   });
@@ -51,10 +59,10 @@ const PoliceForce: React.FC<PoliceForceProps> = ({ match }) => {
         {force && (
           <Wrapper>
             <IonText>
-              <b>{force.name}</b>
+              <h3>{force.name}</h3>
             </IonText>
-            {force.engagement_methods && (
-              <EngagementMethods data={force.engagement_methods} />
+            {force.data?.engagement_methods && (
+              <EngagementMethods data={force.data.engagement_methods} />
             )}
 
             <IonSegment
@@ -64,25 +72,30 @@ const PoliceForce: React.FC<PoliceForceProps> = ({ match }) => {
               <IonSegmentButton value="map">
                 <IonIcon icon={mapOutline} />
               </IonSegmentButton>
-              {force.description && (
+              <IonSegmentButton value="neighborhoods">
+                <IonIcon icon={shieldOutline} />
+              </IonSegmentButton>
+              {force.data?.description && (
                 <IonSegmentButton value="description">
-                  <IonLabel>Description</IonLabel>
+                  <IonIcon icon={informationCircleOutline} />
                 </IonSegmentButton>
               )}
             </IonSegment>
 
             {segment === "map" && (
               <MapContainer>
-                <Map forceId={forceId} />
+                <ForceMap forceId={force.id} />
               </MapContainer>
             )}
 
             {segment === "description" && (
               <IonText color="medium">
-                <small
-                  dangerouslySetInnerHTML={{ __html: force.description }}
-                />
+                <p dangerouslySetInnerHTML={{ __html: force.data?.description }} />
               </IonText>
+            )}
+
+            {segment === "neighborhoods" && (
+              <NeighbourhoodsList forceId={force.id} />
             )}
           </Wrapper>
         )}
@@ -100,9 +113,12 @@ const Content = styled(IonContent)`
 
 const Wrapper = styled.div`
   padding: 16px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 `;
 
 const MapContainer = styled.div`
   width: 100%;
-  height: 250px;
+  height: 300px;
 `;

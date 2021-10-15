@@ -80,23 +80,25 @@ export const PostcodeSearch: React.FC<Props> = ({ placeholder, onSelect }) => {
         placeholder={placeholder}
       />
       {postcodeOptions.length > 0 && (
-        <List>
-          {postcodeOptions.map((option: string, index: number) =>
-            option === NOT_FOUND ? (
-              NOT_FOUND
-            ) : (
-              <ListItem
-                key={index}
-                lines="none"
-                button
-                onClick={() => select(option)}
-              >
-                <IonIcon slot="start" icon={locateOutline} color="medium" />
-                <IonLabel>{option}</IonLabel>
-              </ListItem>
-            )
-          )}
-        </List>
+        <ListWrapper>
+          <List>
+            {postcodeOptions.map((option: string, index: number) =>
+              option === NOT_FOUND ? (
+                NOT_FOUND
+              ) : (
+                <ListItem
+                  key={index}
+                  lines="none"
+                  button
+                  onClick={() => select(option)}
+                >
+                  <IonIcon slot="start" icon={locateOutline} color="medium" />
+                  <IonLabel>{option}</IonLabel>
+                </ListItem>
+              )
+            )}
+          </List>
+        </ListWrapper>
       )}
     </Toolbar>
   );
@@ -118,7 +120,7 @@ const Toolbar = styled.div`
   right: 0;
   top: 0;
   text-align: center;
-  max-width: 500px;
+  max-width: 600px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -126,14 +128,21 @@ const Toolbar = styled.div`
   padding: 6px;
 `;
 
-const List = styled(IonList)`
+const ListWrapper = styled.div`
   box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.1);
-  margin: 6px;
-  max-width: 500px;
+  margin-top: 6px;
+  margin-bottom: 4px;
+  max-width: 600px;
   border-radius: 25px;
   text-align: center;
   width: 100%;
+  height: 160px;
+  overflow-y: auto;
   z-index: 99;
+`;
+
+const List = styled(IonList)`
+  border-radius: 25px;
 `;
 
 const ListItem = styled(IonItem)`
