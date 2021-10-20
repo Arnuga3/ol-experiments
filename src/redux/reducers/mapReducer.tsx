@@ -2,13 +2,11 @@ import { Reducer } from "redux";
 import { MapActions } from "../actions/mapActions";
 
 export interface State {
-  zoom: number | null;
-  center: number[] | null;
+  corners: any;
 }
 
 const defaultState: State = {
-  zoom: null,
-  center: null,
+  corners: null,
 };
 
 const reducer: Reducer<State> = (state: State = defaultState, action) => {
@@ -16,8 +14,7 @@ const reducer: Reducer<State> = (state: State = defaultState, action) => {
     case MapActions.STORE_MAP_POSITION:
       return {
         ...state,
-        zoom: action.zoom,
-        center: action.center,
+        corners: action.corners,
       };
 
     default:

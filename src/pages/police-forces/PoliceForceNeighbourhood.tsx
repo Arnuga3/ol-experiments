@@ -23,8 +23,13 @@ import {
 
 import { RouteComponentProps } from "react-router-dom";
 import { NeighbourhoodMap } from "./components/neighbourhood/NeighbourhoodMap";
-import { mapOutline, informationCircleOutline } from "ionicons/icons";
+import {
+  mapOutline,
+  informationCircleOutline,
+  skullOutline,
+} from "ionicons/icons";
 import NeighbourhoodDetails from "./components/neighbourhood/NeighbourhoodDetails";
+import NeighbourhoodCrimes from "./components/neighbourhood/NeighbourhoodCrimes";
 
 interface PoliceForceNeighbourhoodProps
   extends RouteComponentProps<{ id: string }> {}
@@ -87,6 +92,9 @@ const PoliceForceNeighbourhood: React.FC<PoliceForceNeighbourhoodProps> = ({
                       <IonIcon icon={informationCircleOutline} />
                     </IonSegmentButton>
                   )}
+                  <IonSegmentButton value="crimes">
+                    <IonIcon icon={skullOutline} />
+                  </IonSegmentButton>
                 </IonSegment>
 
                 {segment === "map" && (
@@ -108,6 +116,8 @@ const PoliceForceNeighbourhood: React.FC<PoliceForceNeighbourhoodProps> = ({
                     />
                   </IonText>
                 )}
+
+                {segment === "crimes" && <NeighbourhoodCrimes />}
               </>
             )}
           </Wrapper>

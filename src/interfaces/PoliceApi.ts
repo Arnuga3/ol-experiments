@@ -34,3 +34,8 @@ export interface Coordinate {
   latitude: string;
   longitude: string;
 }
+
+export interface CrimeCategory {
+  url: string;
+  name: string;
+}

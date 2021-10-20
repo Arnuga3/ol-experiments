@@ -4,15 +4,12 @@ export enum MapActions {
 
 export interface StoreMapPosition {
   type: MapActions.STORE_MAP_POSITION;
-  zoom: number,
-  center: number[],
+  corners: any,
 }
 
 export const storeMapPosition = (
-  zoom: number,
-  center: number[],
+  corners: any,
 ): StoreMapPosition => ({
   type: MapActions.STORE_MAP_POSITION,
-  zoom,
-  center,
+  corners,
 });

@@ -66,7 +66,7 @@ const PoliceForce: React.FC<PoliceForceProps> = ({ match }) => {
             )}
 
             <IonSegment
-              color="secondary"
+              color="primary"
               onIonChange={(e: any) => setSegment(e.detail.value)}
             >
               <IonSegmentButton value="map">
@@ -90,7 +90,9 @@ const PoliceForce: React.FC<PoliceForceProps> = ({ match }) => {
 
             {segment === "description" && (
               <IonText color="medium">
-                <p dangerouslySetInnerHTML={{ __html: force.data?.description }} />
+                <p
+                  dangerouslySetInnerHTML={{ __html: force.data?.description }}
+                />
               </IonText>
             )}
 
@@ -119,6 +121,7 @@ const Wrapper = styled.div`
 `;
 
 const MapContainer = styled.div`
+  position: relative;
   width: 100%;
   height: 300px;
 `;

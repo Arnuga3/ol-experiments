@@ -64,40 +64,6 @@ export class PoliceNeighbourhoodApiService {
     }
     return null;
   }
-
-  public async getBoundaryFromCoordinates({
-    latitude,
-    longitude,
-  }: Coordinate): Promise<any> {
-    try {
-      const NHLocated = await this.locate(latitude, longitude);
-
-      if (NHLocated) {
-        const { force, neighbourhood } = NHLocated;
-        const boundary = await this.getBoundary(force, neighbourhood);
-
-        if (boundary) {
-          return {
-            policeForceName: force,
-            boundary,
-          };
-        }
-      }
-      return null;
-    } catch (e) {
-      throw new Error("Police neighbourhood not found");
-    }
-  }
-
-  // public async getBoundaryFromPostcode(postcode: string): Promise<any> {
-  //   const coordinates = await postcodeService.getCoordinates(
-  //     postcode.replace(/\s/g, "")
-  //   );
-  //   if (coordinates) {
-  //     return await this.getBoundaryFromCoordinates(coordinates);
-  //   }
-  //   return null;
-  // }
 }
 
 export const policeNeighbourhoodService = new PoliceNeighbourhoodApiService();

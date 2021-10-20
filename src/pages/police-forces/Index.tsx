@@ -11,7 +11,7 @@ import {
   IonPage,
   IonToolbar,
 } from "@ionic/react";
-import { shieldHalfOutline } from "ionicons/icons";
+import { shieldCheckmarkOutline } from "ionicons/icons";
 
 import { usePoliceData } from "../../hooks/police/policeDataHook";
 
@@ -47,7 +47,7 @@ const Index: React.FC = () => {
             </IonListHeader>
             {forces.map((force: { id: string; name: string }) => (
               <IonItem key={force.id} routerLink={`/police-force/${force.id}`}>
-                <IonIcon icon={shieldHalfOutline} slot="start" color="medium" />
+                <IonIcon icon={shieldCheckmarkOutline} slot="start" color="secondary"/>
                 {force.name}
               </IonItem>
             ))}

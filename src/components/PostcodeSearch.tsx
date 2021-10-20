@@ -72,7 +72,7 @@ export const PostcodeSearch: React.FC<Props> = ({ placeholder, onSelect }) => {
         type="search"
         enterkeyhint="search"
         inputMode="search"
-        debounce={500}
+        debounce={1000}
         searchIcon={locationOutline}
         clearIcon={closeCircleOutline}
         onIonChange={search}

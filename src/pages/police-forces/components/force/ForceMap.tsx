@@ -23,8 +23,12 @@ export const ForceMap: React.FC<Props> = ({ forceId }) => {
   }, []);
 
   const drawForceBoundary = async (forceId: string) => {
-      const boundary = await import(`./../../../../data/force-boundaries/${forceId}.json`);
-      mapService.drawBoundaryFromGeoJson(map, boundary);
+    const boundary = await import(
+      `./../../../../data/force-boundaries/${forceId}.json`
+    );
+    mapService.drawBoundaryFromGeoJson(map, boundary, true, {
+      fill: { color: [61, 194, 255, 0.2] },
+    });
   };
 
   return <MapContainer ref={mapRef} />;

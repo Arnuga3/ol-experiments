@@ -1,29 +1,33 @@
 import { useState } from "react";
 import styled from "styled-components";
 
-import { IonContent, IonPage } from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 
 import { Spinner } from "../../components/Spinner";
 import { PostcodeSearch } from "../../components/PostcodeSearch";
 import { Map } from "./components/Map";
+import { useDispatch } from "react-redux";
+import { getCrimesByPostcode } from "../../redux/actions/police/crimesActions";
 
 const Index: React.FC = () => {
-  const [postcode, setPostcode] = useState<string | null>(null);
+  const dispatch = useDispatch();
+
   const [mapBusy, setMapBusy] = useState<boolean>(false);
-  const [crimes, setCrimes] = useState<any>(null);
 
   return (
     <IonPage>
+    <IonHeader className="ion-no-border">
+      <IonToolbar>
+        <PostcodeSearch
+          placeholder="Search by postcode"
+          onSelect={async (postcode: string) => dispatch(getCrimesByPostcode(postcode))}
+        />
+      </IonToolbar>
+    </IonHeader>
       <Content fullscreen>
         {mapBusy && <Spinner name="crescent" color="secondary" />}
         <Map
-          postcode={postcode}
           onLoading={(loading: boolean) => setMapBusy(loading)}
-          onData={(data) => setCrimes(data)}
-        />
-        <PostcodeSearch
-          placeholder="Search Crimes by postcode"
-          onSelect={(postcode: string | null) => setPostcode(postcode)}
         />
       </Content>
     </IonPage>

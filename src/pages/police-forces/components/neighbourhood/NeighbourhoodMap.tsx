@@ -5,6 +5,8 @@ import { mapService } from "../../../../services/MapService";
 import { Coordinate } from "../../../../interfaces/PoliceApi";
 import { useLoader } from "../../../../hooks/loaderHook";
 import { Spinner } from "../../../../components/Spinner";
+import { useDispatch } from "react-redux";
+import { storeMapPosition } from "../../../../redux/actions/mapActions";
 
 interface Props {
   forceId: string;
@@ -17,6 +19,7 @@ export const NeighbourhoodMap: React.FC<Props> = ({
   boundary,
   centre,
 }) => {
+  const dispatch = useDispatch();
   const mapRef = useRef<any>(null);
   const [map, setMap] = useState<any>(null);
 
@@ -26,9 +29,14 @@ export const NeighbourhoodMap: React.FC<Props> = ({
     if (map && boundary) {
       // TODO - Improve the params
       // TODO - Check if smooth zoom possible from loading state
-      mapService.drawBoundaryFromCoordinates(map, boundary, true, {
+      const corners = mapService.drawBoundaryFromCoordinates(map, boundary, true, {
         fill: { color: [61, 194, 255, 0.1] },
       });
+
+      if (corners) {
+        dispatch(storeMapPosition(corners));
+      }
+
       mapService.drawPin(map, centre);
     }
   }, [map, boundary]);
@@ -49,7 +57,9 @@ export const NeighbourhoodMap: React.FC<Props> = ({
     const boundary = await import(
       `./../../../../data/force-boundaries/${forceId}.json`
     );
-    mapService.drawBoundaryFromGeoJson(map, boundary, false);
+    mapService.drawBoundaryFromGeoJson(map, boundary, true, {
+      fill: { color: [61, 194, 255, 0.1] },
+    });
   };
 
   return (

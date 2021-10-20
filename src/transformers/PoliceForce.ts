@@ -5,6 +5,8 @@ import {
   logoFacebook,
   logoYoutube,
   earthOutline,
+  logoInstagram,
+  logoFlickr,
 } from "ionicons/icons";
 import _ from "lodash";
 
@@ -20,6 +22,10 @@ function getEngagementMethodIcon(type: ContactType) {
       return logoFacebook;
     case "youtube":
       return logoYoutube;
+    case "instagram":
+      return logoInstagram;
+    case "flickr":
+      return logoFlickr;
     case "telephone":
       return callOutline;
     default:

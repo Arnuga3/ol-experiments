@@ -1,5 +1,10 @@
 import { Reducer } from "redux";
-import { Force, ForceListItem } from "../../interfaces/PoliceApi";
+import {
+  CrimeCategory,
+  Force,
+  ForceListItem,
+} from "../../interfaces/PoliceApi";
+import { CrimesDataActions } from "../actions/police/crimesActions";
 import { PoliceDataActions } from "../actions/police/policeForceActions";
 import { PoliceNeighbourhoodActions } from "../actions/police/policeNeighbourhoodActions";
 
@@ -7,12 +12,17 @@ export interface State {
   dataset: any;
   forces: ForceListItem[];
   neighbourhoodsIndexMap: any;
+
+  crimeCateogories: CrimeCategory[];
+  crimes: any;
 }
 
 const defaultState: State = {
   dataset: null,
   forces: [],
   neighbourhoodsIndexMap: {},
+  crimeCateogories: [],
+  crimes: null,
 };
 
 const reducer: Reducer<State> = (state: State = defaultState, action) => {
@@ -32,19 +42,6 @@ const reducer: Reducer<State> = (state: State = defaultState, action) => {
         ...state,
         dataset: updateRecord(state.dataset, action.force),
       };
-
-    // case PoliceDataActions.STORE_POLICE_FORCE_NAME_BOUNDARY:
-    //   return {
-    //     ...state,
-    //     boundary: action.boundary,
-    //     selectedForce: action.policeForceName,
-    //   };
-
-    // case PoliceDataActions.STORE_POLICE_FORCE_INFO:
-    //   return {
-    //     ...state,
-    //     policeForce: action.policeForceInformation,
-    //   };
 
     case PoliceNeighbourhoodActions.STORE_POLICE_FORCES_NEIGHBOURHOOD_LIST:
       const map = toMap(action.neighbourhoods);
@@ -92,6 +89,18 @@ const reducer: Reducer<State> = (state: State = defaultState, action) => {
             },
           },
         },
+      };
+
+    case CrimesDataActions.STORE_CRIME_CATEGORIES:
+      return {
+        ...state,
+        crimeCateogories: action.crimeCategories,
+      };
+
+    case CrimesDataActions.STORE_CRIMES:
+      return {
+        ...state,
+        crimes: action.crimes,
       };
 
     default:

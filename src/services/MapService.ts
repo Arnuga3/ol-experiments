@@ -4,8 +4,8 @@ import { Style, Circle, Fill, Stroke, Icon } from "ol/style";
 import { Heatmap, Vector, Tile } from "ol/layer";
 import { Stamen } from "ol/source";
 import { defaults } from "ol/control";
-import { fromLonLat, transform } from "ol/proj";
-import { isEmpty } from "ol/extent";
+import { fromLonLat, transform, transformExtent, toUserExtent, toLonLat } from "ol/proj";
+import { getBottomLeft, getBottomRight, getTopLeft, getTopRight, isEmpty } from "ol/extent";
 import { GeoJSON } from "ol/format";
 
 import VectorSource from "ol/source/Vector";
@@ -17,15 +17,7 @@ import { storeMapPosition } from "../redux/actions/mapActions";
 
 import pin from "../data/pin.png";
 
-const color = [61, 194, 255, 1];
-
-const style = new Style({
-  stroke: new Stroke({
-    color,
-    width: 3,
-    lineCap: "round",
-  }),
-});
+const color = getComputedStyle(document.documentElement).getPropertyValue('--ion-color-primary');
 
 const INIT_POINT = [-1.8, 53.6];
 const DRAWING_LAYER = "DRAWING_LAYER";
@@ -71,16 +63,16 @@ export class MapService {
     });
   }
 
-  public trackMapPosition(map: Map, dispatch: Dispatch) {
-    map.on("moveend", (e) => {
-      dispatch(
-        storeMapPosition(
-          map.getView().getZoom() as any,
-          map.getView().getCenter() as any
-        )
-      );
-    });
-  }
+  // public trackMapPosition(map: Map, dispatch: Dispatch) {
+  //   map.on("moveend", (e) => {
+  //     dispatch(
+  //       storeMapPosition(
+  //         map.getView().getZoom() as any,
+  //         map.getView().getCenter() as any
+  //       )
+  //     );
+  //   });
+  // }
 
   public updateMapPosition(map: Map, zoom: number, center: number[]) {
     map.getView().setZoom(zoom);
@@ -111,17 +103,18 @@ export class MapService {
     map.addLayer(layer);
     if (fitToExtent) {
       this.fitToExtent(map, layer);
+      return this.getExtentCornerCoordinates(layer.getSource().getExtent());
     }
   };
 
-  public createBoundaryLayerFromGeoJson(boundary: any) {
+  public createBoundaryLayerFromGeoJson(boundary: any, styles: any) {
     const source = new VectorSource({
       features: new GeoJSON().readFeatures(boundary).map((f) => {
         f.getGeometry().transform("EPSG:4326", "EPSG:3857");
         return f;
       }),
     });
-    const layer = new Vector({ source, style });
+    const layer = new Vector({ source, style: getStyles(styles) });
     layer.set("name", DRAWING_LAYER);
     return layer;
   }
@@ -129,9 +122,10 @@ export class MapService {
   public drawBoundaryFromGeoJson = (
     map: Map,
     boundary: any,
-    fitToExtent = true
+    fitToExtent = true,
+    styles: any = null,
   ) => {
-    const layer = this.createBoundaryLayerFromGeoJson(boundary);
+    const layer = this.createBoundaryLayerFromGeoJson(boundary, styles);
     map.addLayer(layer);
     if (fitToExtent) {
       this.fitToExtent(map, layer);
@@ -150,6 +144,16 @@ export class MapService {
         map.getView().fit(extent);
       }
     }, 100);
+  }
+
+  public getExtentCornerCoordinates(extent: any) {
+    const x = transformExtent(extent, 'EPSG:3857','EPSG:4326');
+    return {
+        topLeft: getTopLeft(x),
+        topRight: getTopRight(x),
+        bottomLeft: getBottomLeft(x),
+        bottomRight: getBottomRight(x),
+    };
   }
 
   public clear(map: Map) {

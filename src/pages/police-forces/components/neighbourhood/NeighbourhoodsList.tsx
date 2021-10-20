@@ -32,7 +32,7 @@ const NeighbourhoodsList: React.FC<Props> = ({ forceId }) => {
               key={neighbourhood.id}
               routerLink={`/police-force/${forceId}/neighbourhood/${neighbourhood.id}`}
             >
-              <IonIcon icon={shieldOutline} slot="start" color="medium" />
+              <IonIcon icon={shieldOutline} slot="start" color="secondary" />
               {neighbourhood.name}
             </IonItem>
           ))}
