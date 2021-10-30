@@ -29,7 +29,6 @@ const Wrapper = styled.div`
 `;
 
 const Methods = styled.div`
-  margin: 12px 0;
   padding: 12px;
   display: flex;
   overflow-x: scroll;

@@ -7,14 +7,26 @@ import { getCrimesForArea } from "../../../../redux/actions/police/crimesActions
 const NeighbourhoodCrimes: React.FC = () => {
   const dispatch = useDispatch();
   const { corners } = useMap();
-  const { crimes } = usePoliceData();
+  const { crimes, crimesGrouped } = usePoliceData();
 
   useEffect(() => {
     if (corners) {
       dispatch(getCrimesForArea(corners));
     }
   }, [corners]);
-  return <p>{`Crimes count: ${crimes ? crimes.length : 0}`}</p>;
+
+  return (
+    <>
+      <p>{`Data for: ${crimes ? crimes[0].month : '---'}`}</p>
+      <p>{`Total crimes: ${crimes ? crimes.length : 0}`}</p>
+      <ul>
+        {crimesGrouped &&
+          Object.keys(crimesGrouped).map((crimeGroup: any) => (
+            <li key={crimeGroup}>{`${crimeGroup} (${crimesGrouped[crimeGroup].length})`}</li>
+          ))}
+      </ul>
+    </>
+  );
 };
 
 export default NeighbourhoodCrimes;

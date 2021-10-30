@@ -39,38 +39,23 @@ const Details = styled.div`
   margin: 12px 0;
   padding: 12px;
   display: flex;
-  overflow-x: scroll;
-  overflow-y: hidden;
-  flex-wrap: nowrap;
-  background-image: linear-gradient(to right, white, white),
-    linear-gradient(to right, white, white),
-    linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0)),
-    linear-gradient(to left, rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0));
-  background-position: left center, right center, left center, right center;
-  background-repeat: no-repeat;
-  background-color: white;
-  background-size: 20px 100%, 20px 100%, 10px 100%, 10px 100%;
-  background-attachment: local, local, scroll, scroll;
+  flex-direction: column;
 `;
 
 const Link = styled.a`
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  margin-right: 28px;
   text-decoration: none;
-  text-align: center;
 `;
 
 const Detail = styled.div`
   display: flex;
-  flex-direction: column;
-  margin-right: 28px;
+  align-items: center;
 `;
 
 const Icon = styled(IonIcon)`
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  margin-right: 12px;
   font-size: 32px;
 `;
 

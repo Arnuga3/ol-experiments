@@ -6,9 +6,12 @@ import styled from "styled-components";
 import {
   IonBackButton,
   IonButtons,
+  IonCard,
   IonContent,
   IonHeader,
   IonIcon,
+  IonItemDivider,
+  IonLabel,
   IonPage,
   IonSegment,
   IonSegmentButton,
@@ -30,15 +33,18 @@ import EngagementMethods from "./components/force/EngagementMethods";
 import NeighbourhoodsList from "./components/neighbourhood/NeighbourhoodsList";
 
 import { getPoliceForce } from "../../redux/actions/police/policeForceActions";
+import { Spinner } from "../../components/Spinner";
+import { useLoader } from "../../hooks/loaderHook";
 
 interface PoliceForceProps extends RouteComponentProps<{ id: string }> {}
 
 const PoliceForce: React.FC<PoliceForceProps> = ({ match }) => {
   const forceId = match.params.id;
-  const [segment, setSegment] = useState<string | null>("map");
+  const [segment, setSegment] = useState<string>("map");
 
   const dispatch = useDispatch();
   const force = usePoliceForce(forceId);
+  const { loading } = useLoader();
 
   useIonViewDidEnter(() => {
     if (forceId && !force.data) {
@@ -58,29 +64,39 @@ const PoliceForce: React.FC<PoliceForceProps> = ({ match }) => {
       <Content fullscreen>
         {force && (
           <Wrapper>
-            <IonText>
-              <h3>{force.name}</h3>
-            </IonText>
-            {force.data?.engagement_methods && (
-              <EngagementMethods data={force.data.engagement_methods} />
+            <Block>
+              <IonText>
+                <h4>{force.name}</h4>
+              </IonText>
+            </Block>
+
+            {loading ? (
+              <Spinner name="crescent" color="secondary" />
+            ) : (
+              force.data?.engagement_methods && (
+                <EngagementMethods data={force.data.engagement_methods} />
+              )
             )}
 
-            <IonSegment
-              color="primary"
-              onIonChange={(e: any) => setSegment(e.detail.value)}
-            >
-              <IonSegmentButton value="map">
-                <IonIcon icon={mapOutline} />
-              </IonSegmentButton>
-              <IonSegmentButton value="neighborhoods">
-                <IonIcon icon={shieldOutline} />
-              </IonSegmentButton>
-              {force.data?.description && (
-                <IonSegmentButton value="description">
-                  <IonIcon icon={informationCircleOutline} />
+            <IonCard>
+              <IonSegment
+                value={segment}
+                color="secondary"
+                onIonChange={(e: any) => setSegment(e.detail.value)}
+              >
+                <IonSegmentButton value="map">
+                  <IonIcon icon={mapOutline} />
                 </IonSegmentButton>
-              )}
-            </IonSegment>
+                <IonSegmentButton value="neighborhoods">
+                  <IonIcon icon={shieldOutline} />
+                </IonSegmentButton>
+                {force.data?.description && (
+                  <IonSegmentButton value="description">
+                    <IonIcon icon={informationCircleOutline} />
+                  </IonSegmentButton>
+                )}
+              </IonSegment>
+            </IonCard>
 
             {segment === "map" && (
               <MapContainer>
@@ -89,11 +105,15 @@ const PoliceForce: React.FC<PoliceForceProps> = ({ match }) => {
             )}
 
             {segment === "description" && (
-              <IonText color="medium">
-                <p
-                  dangerouslySetInnerHTML={{ __html: force.data?.description }}
-                />
-              </IonText>
+              <Block>
+                <IonText>
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: force.data?.description,
+                    }}
+                  />
+                </IonText>
+              </Block>
             )}
 
             {segment === "neighborhoods" && (
@@ -114,10 +134,13 @@ const Content = styled(IonContent)`
 `;
 
 const Wrapper = styled.div`
-  padding: 16px;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+`;
+
+const Block = styled.div`
+  padding: 0 16px;
 `;
 
 const MapContainer = styled.div`

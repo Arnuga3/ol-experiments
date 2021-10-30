@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { Reducer } from "redux";
 import {
   CrimeCategory,
@@ -15,6 +16,7 @@ export interface State {
 
   crimeCateogories: CrimeCategory[];
   crimes: any;
+  crimesGrouped: any;
 }
 
 const defaultState: State = {
@@ -23,6 +25,7 @@ const defaultState: State = {
   neighbourhoodsIndexMap: {},
   crimeCateogories: [],
   crimes: null,
+  crimesGrouped: null,
 };
 
 const reducer: Reducer<State> = (state: State = defaultState, action) => {
@@ -101,6 +104,7 @@ const reducer: Reducer<State> = (state: State = defaultState, action) => {
       return {
         ...state,
         crimes: action.crimes,
+        crimesGrouped: _.groupBy(action.crimes, 'category'),
       };
 
     default:

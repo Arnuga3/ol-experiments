@@ -60,7 +60,7 @@ export function getCrimesByPostcode(postcode: string) {
 export function getCrimesForArea(corners: any) {
   return async (dispatch: Dispatch) => {
     try {
-      const crimes = await crimesService.getWithinCustomArea(corners, 'all-crime', '2020-06');
+      const crimes = await crimesService.getWithinCustomArea(corners, 'all-crime');
       if (crimes) {
         dispatch(storeCrimes(crimes));
       }

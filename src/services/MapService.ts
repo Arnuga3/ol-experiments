@@ -1,10 +1,10 @@
 import { Map, View, Feature } from "ol";
 import { Point, Polygon } from "ol/geom";
-import { Style, Circle, Fill, Stroke, Icon } from "ol/style";
+import { Style, Fill, Stroke, Icon } from "ol/style";
 import { Heatmap, Vector, Tile } from "ol/layer";
 import { Stamen } from "ol/source";
 import { defaults } from "ol/control";
-import { fromLonLat, transform, transformExtent, toUserExtent, toLonLat } from "ol/proj";
+import { fromLonLat, transform, transformExtent } from "ol/proj";
 import { getBottomLeft, getBottomRight, getTopLeft, getTopRight, isEmpty } from "ol/extent";
 import { GeoJSON } from "ol/format";
 
@@ -12,12 +12,10 @@ import VectorSource from "ol/source/Vector";
 import "ol/ol.css";
 
 import { Coordinate } from "../interfaces/PoliceApi";
-import { Dispatch } from "redux";
-import { storeMapPosition } from "../redux/actions/mapActions";
 
 import pin from "../data/pin.png";
 
-const color = getComputedStyle(document.documentElement).getPropertyValue('--ion-color-primary');
+const color = getComputedStyle(document.documentElement).getPropertyValue('--ion-color-secondary');
 
 const INIT_POINT = [-1.8, 53.6];
 const DRAWING_LAYER = "DRAWING_LAYER";

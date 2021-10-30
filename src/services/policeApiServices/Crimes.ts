@@ -67,7 +67,8 @@ export class CrimesApiService {
       );
 
       if (response && response.data.length > 0) {
-        return transformCrimesData(response.data);
+        // return transformCrimesData(response.data);
+        return response.data;
       }
     } catch (e) {
       console.log(e);

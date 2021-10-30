@@ -6,6 +6,7 @@ import { policeForceService } from "../../../services/policeApiServices/PoliceFo
 import { ForceListItem } from "../../../interfaces/PoliceApi";
 
 import forces from '../../../data/forces.json';
+import { loadingStart, loadingStop } from "../loaderActions";
 
 export enum PoliceDataActions {
   STORE_POLICE_FORCES_LIST = "STORE_POLICE_FORCES_LIST",
@@ -79,11 +80,14 @@ export function getPoliceForcesList() {
 export function getPoliceForce(forceId: string) {
   return async (dispatch: Dispatch) => {
     try {
+      dispatch(loadingStart());
       const data = await policeForceService.get(forceId);
       if (data) {
         dispatch(storePoliceForce(data));
       }
+      dispatch(loadingStop());
     } catch (e: any) {
+      dispatch(loadingStop());
       dispatch(showError(e));
     }
   };
@@ -105,12 +109,15 @@ export function getPoliceForceFromPostcode(postcode: string, history: any) {
 export function getPoliceForceInformation(forceId: string) {
   return async (dispatch: Dispatch) => {
     try {
+      dispatch(loadingStart());
       const data = await policeForceService.get(forceId);
       if (data) {
         dispatch(storePoliceForceInformation(data));
       }
+      dispatch(loadingStop());
     } catch (e: any) {
       dispatch(showError(e));
+      dispatch(loadingStop());
     }
   };
 }

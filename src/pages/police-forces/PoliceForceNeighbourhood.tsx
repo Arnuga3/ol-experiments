@@ -6,6 +6,7 @@ import styled from "styled-components";
 import {
   IonBackButton,
   IonButtons,
+  IonCard,
   IonContent,
   IonHeader,
   IonIcon,
@@ -30,6 +31,7 @@ import {
 } from "ionicons/icons";
 import NeighbourhoodDetails from "./components/neighbourhood/NeighbourhoodDetails";
 import NeighbourhoodCrimes from "./components/neighbourhood/NeighbourhoodCrimes";
+import { usePoliceForce } from "../../hooks/police/policeForceHook";
 
 interface PoliceForceNeighbourhoodProps
   extends RouteComponentProps<{ id: string }> {}
@@ -43,6 +45,7 @@ const PoliceForceNeighbourhood: React.FC<PoliceForceNeighbourhoodProps> = ({
 
   const [segment, setSegment] = useState<string | null>("map");
   const neighbourhood = usePoliceNeighbourhood(neighbourhoodId);
+  const force = usePoliceForce(neighbourhood.forceId);
 
   useEffect(() => {
     if (!neighbourhood) {
@@ -70,32 +73,34 @@ const PoliceForceNeighbourhood: React.FC<PoliceForceNeighbourhoodProps> = ({
       <Content fullscreen>
         {neighbourhood && (
           <Wrapper>
-            <IonText>
-              <h3>{neighbourhood.name}</h3>
-            </IonText>
+            <Block>
+              <IonText>
+                <small>{`${force?.name}`}</small>
+                <h4 dangerouslySetInnerHTML={{ __html: neighbourhood.name }} />
+              </IonText>
+            </Block>
 
             {neighbourhood && neighbourhood.data && (
               <>
-                {neighbourhood.data.details && (
-                  <NeighbourhoodDetails data={neighbourhood.data.details} />
-                )}
-
-                <IonSegment
-                  color="secondary"
-                  onIonChange={(e: any) => setSegment(e.detail.value)}
-                >
-                  <IonSegmentButton value="map">
-                    <IonIcon icon={mapOutline} />
-                  </IonSegmentButton>
-                  {neighbourhood.data.description && (
-                    <IonSegmentButton value="description">
-                      <IonIcon icon={informationCircleOutline} />
+                <IonCard>
+                  <IonSegment
+                    value={segment}
+                    color="secondary"
+                    onIonChange={(e: any) => setSegment(e.detail.value)}
+                  >
+                    {neighbourhood.data.description && (
+                      <IonSegmentButton value="description">
+                        <IonIcon icon={informationCircleOutline} />
+                      </IonSegmentButton>
+                    )}
+                    <IonSegmentButton value="map">
+                      <IonIcon icon={mapOutline} />
                     </IonSegmentButton>
-                  )}
-                  <IonSegmentButton value="crimes">
-                    <IonIcon icon={skullOutline} />
-                  </IonSegmentButton>
-                </IonSegment>
+                    <IonSegmentButton value="crimes">
+                      <IonIcon icon={skullOutline} />
+                    </IonSegmentButton>
+                  </IonSegment>
+                </IonCard>
 
                 {segment === "map" && (
                   <MapContainer>
@@ -108,16 +113,21 @@ const PoliceForceNeighbourhood: React.FC<PoliceForceNeighbourhoodProps> = ({
                 )}
 
                 {segment === "description" && (
-                  <IonText color="medium">
-                    <p
-                      dangerouslySetInnerHTML={{
-                        __html: neighbourhood.data.description,
-                      }}
-                    />
-                  </IonText>
+                  <Block>
+                    <IonText>
+                      <p
+                        dangerouslySetInnerHTML={{
+                          __html: neighbourhood.data.description,
+                        }}
+                      />
+                    </IonText>
+                    {neighbourhood.data.details && (
+                      <NeighbourhoodDetails data={neighbourhood.data.details} />
+                    )}
+                  </Block>
                 )}
 
-                {segment === "crimes" && <NeighbourhoodCrimes />}
+                <Block>{segment === "crimes" && <NeighbourhoodCrimes />}</Block>
               </>
             )}
           </Wrapper>
@@ -135,10 +145,13 @@ const Content = styled(IonContent)`
 `;
 
 const Wrapper = styled.div`
-  padding: 16px;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+`;
+
+const Block = styled.div`
+  padding: 0 16px;
 `;
 
 const MapContainer = styled.div`
