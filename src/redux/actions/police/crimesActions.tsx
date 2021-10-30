@@ -3,6 +3,7 @@ import { showError } from "../notificationsActions";
 
 import { CrimeCategory } from "../../../interfaces/PoliceApi";
 import { crimesService } from "../../../services/policeApiServices/Crimes";
+import { loadingStart, loadingStop } from "../loaderActions";
 
 export enum CrimesDataActions {
   STORE_CRIME_CATEGORIES = "STORE_CRIME_CATEGORIES",
@@ -60,11 +61,14 @@ export function getCrimesByPostcode(postcode: string) {
 export function getCrimesForArea(corners: any) {
   return async (dispatch: Dispatch) => {
     try {
+      dispatch(loadingStart());
       const crimes = await crimesService.getWithinCustomArea(corners, 'all-crime');
       if (crimes) {
         dispatch(storeCrimes(crimes));
       }
+      dispatch(loadingStop());
     } catch (e: any) {
+      dispatch(loadingStop());
       dispatch(showError(e));
     }
   };

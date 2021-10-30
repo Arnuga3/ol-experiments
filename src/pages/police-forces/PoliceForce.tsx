@@ -10,8 +10,6 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
-  IonItemDivider,
-  IonLabel,
   IonPage,
   IonSegment,
   IonSegmentButton,
@@ -21,7 +19,7 @@ import {
 } from "@ionic/react";
 
 import {
-  informationCircleOutline,
+  informationOutline,
   mapOutline,
   shieldOutline,
 } from "ionicons/icons";
@@ -92,7 +90,7 @@ const PoliceForce: React.FC<PoliceForceProps> = ({ match }) => {
                 </IonSegmentButton>
                 {force.data?.description && (
                   <IonSegmentButton value="description">
-                    <IonIcon icon={informationCircleOutline} />
+                    <IonIcon icon={informationOutline} />
                   </IonSegmentButton>
                 )}
               </IonSegment>
