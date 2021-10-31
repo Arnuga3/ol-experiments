@@ -64,6 +64,7 @@ const reducer: Reducer<State> = (state: State = defaultState, action) => {
     case PoliceNeighbourhoodActions.STORE_POLICE_FORCES_NEIGHBOURHOOD:
       return {
         ...state,
+        crimes: null,
         dataset: {
           ...state.dataset,
           [force]: {

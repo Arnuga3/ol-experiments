@@ -32,8 +32,6 @@ import {
 import NeighbourhoodDetails from "./components/neighbourhood/NeighbourhoodDetails";
 import NeighbourhoodCrimes from "./components/neighbourhood/NeighbourhoodCrimes";
 import { usePoliceForce } from "../../hooks/police/policeForceHook";
-import { useLoader } from "../../hooks/loaderHook";
-import { Spinner } from "../../components/Spinner";
 
 interface PoliceForceNeighbourhoodProps
   extends RouteComponentProps<{ id: string }> {}
@@ -48,7 +46,6 @@ const PoliceForceNeighbourhood: React.FC<PoliceForceNeighbourhoodProps> = ({
   const [segment, setSegment] = useState<string | null>("map");
   const neighbourhood = usePoliceNeighbourhood(neighbourhoodId);
   const force = usePoliceForce(neighbourhood?.forceId);
-  const { loading } = useLoader();
 
   useEffect(() => {
     if (!neighbourhood) {
@@ -129,11 +126,7 @@ const PoliceForceNeighbourhood: React.FC<PoliceForceNeighbourhoodProps> = ({
                     )}
                   </Block>
                 )}
-                <Block>
-                  {segment === "crimes" && (loading
-                    ? <Spinner name="crescent" color="secondary" />
-                    : <NeighbourhoodCrimes />)}
-                </Block>
+                <Block>{segment === "crimes" && <NeighbourhoodCrimes />}</Block>
               </>
             )}
           </Wrapper>
