@@ -54,11 +54,6 @@ const PoliceForceNeighbourhood: React.FC<PoliceForceNeighbourhoodProps> = ({
     if (neighbourhood && !neighbourhood.data) {
       dispatch(getPoliceNeighbourhood(neighbourhood.forceId, neighbourhoodId));
     }
-    if (neighbourhood && !neighbourhood.boundary) {
-      dispatch(
-        getPoliceNeighbourhoodBoundary(neighbourhood.forceId, neighbourhoodId)
-      );
-    }
   }, [neighbourhood]);
 
   return (
@@ -104,11 +99,7 @@ const PoliceForceNeighbourhood: React.FC<PoliceForceNeighbourhoodProps> = ({
 
                 {segment === "map" && (
                   <MapContainer>
-                    <NeighbourhoodMap
-                      forceId={neighbourhood.forceId}
-                      boundary={neighbourhood.boundary}
-                      centre={neighbourhood.data.centre}
-                    />
+                    <NeighbourhoodMap neighbourhoodId={neighbourhoodId} />
                   </MapContainer>
                 )}
 

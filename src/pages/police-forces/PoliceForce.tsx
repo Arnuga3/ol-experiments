@@ -18,11 +18,7 @@ import {
   useIonViewDidEnter,
 } from "@ionic/react";
 
-import {
-  informationOutline,
-  mapOutline,
-  shieldOutline,
-} from "ionicons/icons";
+import { informationOutline, mapOutline, shieldOutline } from "ionicons/icons";
 
 import { RouteComponentProps } from "react-router-dom";
 
@@ -60,7 +56,7 @@ const PoliceForce: React.FC<PoliceForceProps> = ({ match }) => {
         </IonToolbar>
       </IonHeader>
       <Content fullscreen>
-        {force && (
+        {force ? (
           <Wrapper>
             <Block>
               <IonText>
@@ -118,6 +114,8 @@ const PoliceForce: React.FC<PoliceForceProps> = ({ match }) => {
               <NeighbourhoodsList forceId={force.id} />
             )}
           </Wrapper>
+        ) : (
+          <Spinner name="crescent" color="secondary" />
         )}
       </Content>
     </IonPage>
