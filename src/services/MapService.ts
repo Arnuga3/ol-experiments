@@ -5,7 +5,13 @@ import { Heatmap, Vector, Tile } from "ol/layer";
 import { Stamen } from "ol/source";
 import { defaults } from "ol/control";
 import { fromLonLat, transform, transformExtent } from "ol/proj";
-import { getBottomLeft, getBottomRight, getTopLeft, getTopRight, isEmpty } from "ol/extent";
+import {
+  getBottomLeft,
+  getBottomRight,
+  getTopLeft,
+  getTopRight,
+  isEmpty,
+} from "ol/extent";
 import { GeoJSON } from "ol/format";
 
 import VectorSource from "ol/source/Vector";
@@ -15,7 +21,9 @@ import { Coordinate } from "../interfaces/PoliceApi";
 
 import pin from "../data/pin.png";
 
-const color = getComputedStyle(document.documentElement).getPropertyValue('--ion-color-secondary');
+const color = getComputedStyle(document.documentElement).getPropertyValue(
+  "--ion-color-secondary"
+);
 
 const INIT_POINT = [-1.8, 53.6];
 const DRAWING_LAYER = "DRAWING_LAYER";
@@ -32,7 +40,7 @@ function getStroke(options: any) {
     color,
     width: 3,
     lineCap: "round",
-    ...options ? options : {},
+    ...(options ? options : {}),
   };
   return new Stroke(strokeOptions);
 }
@@ -40,9 +48,16 @@ function getStroke(options: any) {
 function getFill(options: any) {
   const fillOptions = {
     color: [0, 0, 0, 0.05],
-    ...options ? options : {},
+    ...(options ? options : {}),
   };
   return new Fill(fillOptions);
+}
+
+interface ShapeCorners {
+  tl: number;
+  tr: number;
+  bl: number;
+  br: number;
 }
 
 export class MapService {
@@ -95,13 +110,34 @@ export class MapService {
     map: Map,
     boundary: Coordinate[],
     fitToExtent = true,
-    styles: any = null,
+    styles: any = null
   ) => {
     const layer = this.createBoundaryLayerFromCoordinates(boundary, styles);
     map.addLayer(layer);
+
     if (fitToExtent) {
       this.fitToExtent(map, layer);
-      return this.getExtentCornerCoordinates(layer.getSource().getExtent());
+
+      const area = layer.getSource().getExtent();
+      const zoom = map.getView().getZoom();
+
+      if (zoom && zoom >= 14) {
+        return this.getCorners(area);
+      }
+
+      if (zoom && zoom >= 12) {
+        return this.getCorners(area, 2);
+      }
+
+      if (zoom && zoom >= 10) {
+        return this.getCorners(area, 3);
+      }
+
+      if (zoom && zoom >= 8) {
+        return this.getCorners(area, 4);
+      }
+
+      return this.getCorners(area, 5);
     }
   };
 
@@ -121,7 +157,7 @@ export class MapService {
     map: Map,
     boundary: any,
     fitToExtent = true,
-    styles: any = null,
+    styles: any = null
   ) => {
     const layer = this.createBoundaryLayerFromGeoJson(boundary, styles);
     map.addLayer(layer);
@@ -144,14 +180,62 @@ export class MapService {
     }, 100);
   }
 
-  public getExtentCornerCoordinates(extent: any) {
-    const x = transformExtent(extent, 'EPSG:3857','EPSG:4326');
-    return {
-        topLeft: getTopLeft(x),
-        topRight: getTopRight(x),
-        bottomLeft: getBottomLeft(x),
-        bottomRight: getBottomRight(x),
+  // TODO - time to create a service and write tests using TDD approach
+
+  public getCorners(extent: any, chunks = 1) {
+    const x = transformExtent(extent, "EPSG:3857", "EPSG:4326");
+
+    const shape: ShapeCorners = {
+      tl: +getTopLeft(x),
+      tr: +getTopRight(x),
+      bl: +getBottomLeft(x),
+      br: +getBottomRight(x),
     };
+
+    switch (chunks) {
+      case 1:
+        return shape;
+
+      case 2:
+        return this.splitOnHalf(shape);
+
+      case 3:
+        return this.splitOnQuarters(shape);
+    }
+
+    return {
+      topLeft: getTopLeft(x),
+      topRight: getTopRight(x),
+      bottomLeft: getBottomLeft(x),
+      bottomRight: getBottomRight(x),
+    };
+  }
+
+  public splitOnHalf(shape: ShapeCorners) {
+    const { tl, tr, bl, br } = shape;
+
+    const leftMiddlePoint = (bl - tl) / 2;
+    const rightMiddlePoint = (br - tr) / 2;
+
+    const area1 = {
+      ...shape,
+      bl: leftMiddlePoint,
+      br: rightMiddlePoint,
+    };
+
+    const area2 = {
+      ...shape,
+      tl: leftMiddlePoint,
+      tr: rightMiddlePoint,
+    };
+
+    return [area1, area2];
+  }
+
+  public splitOnQuarters(shape: ShapeCorners) {
+    const halfs = this.splitOnHalf(shape);
+
+    return [...this.splitOnHalf(halfs[0]), ...this.splitOnHalf(halfs[1])];
   }
 
   public clear(map: Map) {

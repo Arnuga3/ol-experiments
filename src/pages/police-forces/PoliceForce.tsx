@@ -130,7 +130,7 @@ const Content = styled(IonContent)`
 `;
 
 const Wrapper = styled.div`
-  max-width: 600px;
+  max-width: 800px;
   margin-left: auto;
   margin-right: auto;
 `;
@@ -142,5 +142,5 @@ const Block = styled.div`
 const MapContainer = styled.div`
   position: relative;
   width: 100%;
-  height: 300px;
+  height: 400px;
 `;

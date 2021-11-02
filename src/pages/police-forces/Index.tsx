@@ -67,7 +67,7 @@ const Content = styled(IonContent)`
 `;
 
 const Wrapper = styled.div`
-  max-width: 600px;
+  max-width: 800px;
   margin-left: auto;
   margin-right: auto;
   z-index: 1;

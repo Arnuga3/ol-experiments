@@ -62,12 +62,15 @@ export const storePoliceForceNeighbourhood = (
 export function getPoliceForceNeighbourhoodsList(forceId: string) {
   return async (dispatch: Dispatch) => {
     try {
+      dispatch(loadingStart());
       const neighbourhoods = await policeNeighbourhoodService.getList(forceId);
       if (neighbourhoods) {
         dispatch(storePoliceForceNeighbourhoodsList(forceId, neighbourhoods));
       }
+      dispatch(loadingStop());
     } catch (e: any) {
       dispatch(showError(e));
+      dispatch(loadingStop());
     }
   };
 }
